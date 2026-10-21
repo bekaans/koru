@@ -10,6 +10,7 @@ members = [
     "crates/koru-decoy",
     "crates/koru-detect",
     "crates/koru-store",
+    "crates/koru-notify",
     "xtask",
 ]
 
