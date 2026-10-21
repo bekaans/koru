@@ -187,6 +187,8 @@ and non-fast-forward pushes. The "PR checks" workflow applies the same
 commit-msg rule to the pull request title and to every commit in the pull
 request. Dependabot pull requests are exempt from the sign-off job because
 its commits carry no sign-off; the maintainer signs the squash commit.
+Dependabot titles always start with "Bump", so a workflow job rewrites that
+word to "bump" on the pull request before the squash merge.
 Bypassing a hook with `--no-verify` needs maintainer approval.
 
 ### Pull requests

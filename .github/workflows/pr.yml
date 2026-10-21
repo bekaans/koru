@@ -24,11 +24,36 @@ jobs:
       - name: Validate the PR title as a commit subject
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
+          title=$PR_TITLE
+          # Dependabot always writes "Bump"; the dependabot-title job lowercases it on the PR.
+          if [ "$PR_AUTHOR" = 'dependabot[bot]' ]; then
+            title=$(printf '%s' "$title" | sed -E 's/^([a-z]+(\([a-z,-]+\))?!?: )Bump /\1bump /')
+          fi
           msg=$(mktemp)
           # The title is the squash commit subject; the maintainer signs the squash commit.
-          printf '%s\n\nSigned-off-by: CI <ci@example.com>\n' "$PR_TITLE" > "$msg"
+          printf '%s\n\nSigned-off-by: CI <ci@example.com>\n' "$title" > "$msg"
           .githooks/commit-msg "$msg"
+
+  dependabot-title:
+    name: lowercase the dependabot title
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Rewrite "Bump" to "bump" so the squash subject passes commit-msg
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          title=$(printf '%s' "$PR_TITLE" | sed -E 's/^([a-z]+(\([a-z,-]+\))?!?: )Bump /\1bump /')
+          if [ "$title" != "$PR_TITLE" ]; then
+            gh pr edit "$PR_URL" --title "$title"
+          fi
 
   commits:
     name: commit messages and sign-offs
