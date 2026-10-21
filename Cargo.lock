@@ -1412,6 +1412,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "koru"
+version = "0.1.0"
+dependencies = [
+ "koru-decoy",
+ "koru-detect",
+ "koru-event",
+ "koru-notify",
+ "koru-pulsar",
+ "koru-store",
+ "rustix",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "toml",
+]
+
+[[package]]
 name = "koru-decoy"
 version = "0.1.0"
 dependencies = [

@@ -1,0 +1,38 @@
+[package]
+name = "koru"
+description = "The Koru command-line tool; the layers are composed here"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "koru"
+path = "src/main.rs"
+
+# The resident agent (ADR-0003 §7, ADR-0008): Pulsar bridge, detection, store and notify in one process.
+# At install time the process takes the name from the config; in the repo its name is "koru-agent".
+[[bin]]
+name = "koru-agent"
+path = "src/agent_main.rs"
+
+[dependencies]
+koru-event = { workspace = true }
+koru-store = { workspace = true }
+koru-detect = { workspace = true }
+koru-decoy = { workspace = true }
+koru-notify = { workspace = true }
+koru-pulsar = { workspace = true }
+serde = { workspace = true }
+toml = { workspace = true }
+rustix = { workspace = true }
+sha2 = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }
+tempfile = { workspace = true }
+
+[lints]
+workspace = true
