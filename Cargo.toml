@@ -6,6 +6,7 @@
 resolver = "3"
 members = [
     "crates/koru-event",
+    "crates/koru-pulsar",
     "xtask",
 ]
 

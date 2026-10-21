@@ -1,0 +1,32 @@
+{
+  "header": {
+    "image": "/usr/bin/getent",
+    "pid": 5453,
+    "parent_pid": 5390,
+    "uid": 0,
+    "gid": 0,
+    "container": null,
+    "threat": null,
+    "source": "network-monitor",
+    "timestamp": {
+      "secs_since_epoch": 1791560875,
+      "nanos_since_epoch": 586749172
+    },
+    "fork_time": {
+      "secs_since_epoch": 1791560875,
+      "nanos_since_epoch": 585077916
+    }
+  },
+  "payload": {
+    "type": "DnsQuery",
+    "content": {
+      "questions": [
+        {
+          "name": "koru-sample.invalid",
+          "qtype": "AAAA",
+          "qclass": "IN"
+        }
+      ]
+    }
+  }
+}

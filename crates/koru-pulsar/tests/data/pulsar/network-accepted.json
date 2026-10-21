@@ -1,0 +1,33 @@
+{
+  "header": {
+    "image": "/usr/bin/python3",
+    "pid": 5450,
+    "parent_pid": 5390,
+    "uid": 0,
+    "gid": 0,
+    "container": null,
+    "threat": null,
+    "source": "network-monitor",
+    "timestamp": {
+      "secs_since_epoch": 1791560875,
+      "nanos_since_epoch": 581188031
+    },
+    "fork_time": {
+      "secs_since_epoch": 1791560874,
+      "nanos_since_epoch": 554061244
+    }
+  },
+  "payload": {
+    "type": "Accept",
+    "content": {
+      "source": {
+        "ip": "127.0.0.1",
+        "port": 33950
+      },
+      "destination": {
+        "ip": "127.0.0.1",
+        "port": 18080
+      }
+    }
+  }
+}

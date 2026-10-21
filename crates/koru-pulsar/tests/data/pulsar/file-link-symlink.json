@@ -1,0 +1,28 @@
+{
+  "header": {
+    "image": "/usr/bin/ln",
+    "pid": 5447,
+    "parent_pid": 5390,
+    "uid": 0,
+    "gid": 0,
+    "container": null,
+    "threat": null,
+    "source": "file-system-monitor",
+    "timestamp": {
+      "secs_since_epoch": 1791560874,
+      "nanos_since_epoch": 550536608
+    },
+    "fork_time": {
+      "secs_since_epoch": 1791560874,
+      "nanos_since_epoch": 548913602
+    }
+  },
+  "payload": {
+    "type": "FileLink",
+    "content": {
+      "source": "/tmp/koru-sample/bag",
+      "destination": "/etc/shadow",
+      "hard_link": false
+    }
+  }
+}

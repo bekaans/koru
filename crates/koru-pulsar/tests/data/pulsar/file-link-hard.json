@@ -1,0 +1,28 @@
+{
+  "header": {
+    "image": "/usr/bin/ln",
+    "pid": 5448,
+    "parent_pid": 5390,
+    "uid": 0,
+    "gid": 0,
+    "container": null,
+    "threat": null,
+    "source": "file-system-monitor",
+    "timestamp": {
+      "secs_since_epoch": 1791560874,
+      "nanos_since_epoch": 552058195
+    },
+    "fork_time": {
+      "secs_since_epoch": 1791560874,
+      "nanos_since_epoch": 550740317
+    }
+  },
+  "payload": {
+    "type": "FileLink",
+    "content": {
+      "source": "/tmp/koru-sample/sert-bag",
+      "destination": "/tmp/koru-sample/decoy2.txt",
+      "hard_link": true
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "header": {
+    "image": "/usr/bin/cat",
+    "pid": -5,
+    "parent_pid": 5390,
+    "uid": 0,
+    "gid": 0,
+    "container": null,
+    "threat": null,
+    "source": "file-system-monitor",
+    "timestamp": {
+      "secs_since_epoch": 1791560874,
+      "nanos_since_epoch": 540189619
+    },
+    "fork_time": {
+      "secs_since_epoch": 1791560874,
+      "nanos_since_epoch": 537356193
+    }
+  },
+  "payload": {
+    "type": "FileOpened",
+    "content": {
+      "filename": "/tmp/koru-sample/decoy.txt",
+      "flags": 131072
+    }
+  }
+}

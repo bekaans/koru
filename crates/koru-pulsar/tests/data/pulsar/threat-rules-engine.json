@@ -1,0 +1,37 @@
+{
+  "header": {
+    "image": "/usr/bin/ln",
+    "pid": 5447,
+    "parent_pid": 5390,
+    "uid": 0,
+    "gid": 0,
+    "container": null,
+    "threat": {
+      "source": "rules-engine",
+      "description": "Create sensitive files symlink",
+      "extra": {
+        "category": "credential_access",
+        "condition": "(payload.destination IN [\"/etc/shadow\", \"/etc/sudoers\", \"/etc/pam.conf\", \"/etc/security/pwquality.conf\"] OR payload.destination STARTS_WITH \"/etc/sudoers.d/\" OR payload.destination STARTS_WITH \"/etc/pam.d\") AND payload.hard_link == \"false\"",
+        "description": "Detects the creation of sensitive files as a symlink. Adversaries may create symlinks to sensitive files to gain access to information or to escalate privileges.",
+        "severity": "medium"
+      }
+    },
+    "source": "file-system-monitor",
+    "timestamp": {
+      "secs_since_epoch": 1791560874,
+      "nanos_since_epoch": 550536608
+    },
+    "fork_time": {
+      "secs_since_epoch": 1791560874,
+      "nanos_since_epoch": 548913602
+    }
+  },
+  "payload": {
+    "type": "FileLink",
+    "content": {
+      "source": "/tmp/koru-sample/bag",
+      "destination": "/etc/shadow",
+      "hard_link": false
+    }
+  }
+}

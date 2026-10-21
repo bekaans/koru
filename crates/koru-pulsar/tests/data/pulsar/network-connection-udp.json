@@ -1,0 +1,30 @@
+{
+  "header": {
+    "image": "/usr/bin/python3",
+    "pid": 5452,
+    "parent_pid": 5390,
+    "uid": 0,
+    "gid": 0,
+    "container": null,
+    "threat": null,
+    "source": "network-monitor",
+    "timestamp": {
+      "secs_since_epoch": 1791560875,
+      "nanos_since_epoch": 581196822
+    },
+    "fork_time": {
+      "secs_since_epoch": 1791560875,
+      "nanos_since_epoch": 561377804
+    }
+  },
+  "payload": {
+    "type": "Connect",
+    "content": {
+      "destination": {
+        "ip": "127.0.0.1",
+        "port": 18080
+      },
+      "is_tcp": false
+    }
+  }
+}

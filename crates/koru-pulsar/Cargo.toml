@@ -1,0 +1,26 @@
+[package]
+name = "koru-pulsar"
+description = "Koru sensor: embedded module translating Pulsar (eBPF) events into Koru events (ADR-0001, ADR-0003)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+koru-event = { workspace = true }
+thiserror = { workspace = true }
+
+# Pulsar compiles only on Linux (pulsar-core platform modules and eBPF probes);
+# code depending on Pulsar lives behind cfg(target_os = "linux") (ADR-0003).
+[target.'cfg(target_os = "linux")'.dependencies]
+pulsar = { workspace = true }
+pulsar-core = { workspace = true }
+tokio = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }
+
+[lints]
+workspace = true

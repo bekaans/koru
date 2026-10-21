@@ -1,0 +1,31 @@
+{
+  "header": {
+    "image": "/usr/bin/setpriv",
+    "pid": 5443,
+    "parent_pid": 5390,
+    "uid": 0,
+    "gid": 0,
+    "container": null,
+    "threat": null,
+    "source": "process-monitor",
+    "timestamp": {
+      "secs_since_epoch": 1791560874,
+      "nanos_since_epoch": 539267782
+    },
+    "fork_time": {
+      "secs_since_epoch": 1791560874,
+      "nanos_since_epoch": 537356193
+    }
+  },
+  "payload": {
+    "type": "Exec",
+    "content": {
+      "filename": "/usr/bin/cat",
+      "argc": 2,
+      "argv": [
+        "cat",
+        "/tmp/koru-sample/decoy.txt"
+      ]
+    }
+  }
+}

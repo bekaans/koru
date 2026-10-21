@@ -1,0 +1,26 @@
+{
+  "header": {
+    "image": "/usr/bin/rm",
+    "pid": 5449,
+    "parent_pid": 5390,
+    "uid": 0,
+    "gid": 0,
+    "container": null,
+    "threat": null,
+    "source": "file-system-monitor",
+    "timestamp": {
+      "secs_since_epoch": 1791560874,
+      "nanos_since_epoch": 553730159
+    },
+    "fork_time": {
+      "secs_since_epoch": 1791560874,
+      "nanos_since_epoch": 552245529
+    }
+  },
+  "payload": {
+    "type": "FileDeleted",
+    "content": {
+      "filename": "/tmp/koru-sample/decoy2.txt"
+    }
+  }
+}

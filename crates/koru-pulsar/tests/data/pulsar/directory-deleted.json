@@ -1,0 +1,26 @@
+{
+  "header": {
+    "image": "/usr/bin/rmdir",
+    "pid": 5512,
+    "parent_pid": 5390,
+    "uid": 0,
+    "gid": 0,
+    "container": null,
+    "threat": null,
+    "source": "file-system-monitor",
+    "timestamp": {
+      "secs_since_epoch": 1791560875,
+      "nanos_since_epoch": 691026818
+    },
+    "fork_time": {
+      "secs_since_epoch": 1791560875,
+      "nanos_since_epoch": 690180899
+    }
+  },
+  "payload": {
+    "type": "DirDeleted",
+    "content": {
+      "dirname": "/tmp/koru-sample"
+    }
+  }
+}
