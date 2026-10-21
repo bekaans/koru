@@ -1,0 +1,59 @@
+# Pull request checks: the PR title and every commit follow CONTRIBUTING.md.
+# Both jobs run .githooks/commit-msg, the same script contributors run locally.
+name: PR checks
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  title:
+    name: PR title
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate the PR title as a commit subject
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          msg=$(mktemp)
+          # The title is the squash commit subject; the maintainer signs the squash commit.
+          printf '%s\n\nSigned-off-by: CI <ci@example.com>\n' "$PR_TITLE" > "$msg"
+          .githooks/commit-msg "$msg"
+
+  commits:
+    name: commit messages and sign-offs
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate every commit message in base..head
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          status=0
+          msg=$(mktemp)
+          for sha in $(git rev-list --no-merges --reverse "${BASE_SHA}..${HEAD_SHA}"); do
+            git log -1 --format=%B "$sha" > "$msg"
+            if ! .githooks/commit-msg "$msg"; then
+              echo "::error::commit ${sha} violates the commit message rules"
+              status=1
+            fi
+          done
+          exit "$status"

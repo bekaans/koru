@@ -1,0 +1,44 @@
+#!/bin/sh
+# Koru commit-msg hook: enforces CONTRIBUTING.md "Branches, commits and pull requests".
+# Usage: .githooks/commit-msg <message-file>. Lines starting with '#' are ignored.
+
+types='feat|fix|perf|refactor|style|test|docs|build|ci|chore|revert'
+scopes='event|pulsar|decoy|detect|store|notify|cli|packages|schemas|lab|deps|adr|contributing'
+section='CONTRIBUTING.md, section "Branches, commits and pull requests" > "Commit messages"'
+
+file=${1:?usage: commit-msg <message-file>}
+msg=$(grep -v '^#' "$file") || msg=''
+
+fail() {
+  printf 'commit-msg: rejected: %s\n' "$1" >&2
+  printf 'See %s.\n' "$section" >&2
+  exit 1
+}
+
+subject=$(printf '%s\n' "$msg" | sed -n '1p')
+second=$(printf '%s\n' "$msg" | sed -n '2p')
+
+[ -n "$subject" ] || fail 'empty subject'
+[ "${#subject}" -le 72 ] || fail "subject is ${#subject} characters, the limit is 72"
+
+case "$subject" in
+  'fixup! '* | 'squash! '* | 'amend! '*) ;;
+  *)
+    printf '%s\n' "$subject" |
+      grep -Eq "^(${types})(\((${scopes})(,(${scopes}))*\))?!?: [a-z]" ||
+      fail 'subject must look like "type(scope)!: summary" with an allowed type, an allowed scope and a lowercase summary'
+    case "$subject" in
+      *.) fail 'subject must not end with a period' ;;
+    esac
+    ;;
+esac
+
+[ -z "$second" ] || fail 'leave a blank line after the subject'
+
+printf '%s\n' "$msg" | grep -Eiq '^[[:space:]]*co-authored-by:' &&
+  fail 'Co-Authored-By lines are not allowed'
+
+printf '%s\n' "$msg" | grep -Eq '^Signed-off-by: .+ <[^<>[:space:]]+@[^<>[:space:]]+>$' ||
+  fail 'missing "Signed-off-by: Name <email>" trailer (use git commit -s)'
+
+exit 0
