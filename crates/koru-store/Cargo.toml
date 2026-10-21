@@ -1,0 +1,24 @@
+[package]
+name = "koru-store"
+description = "Koru event store (SQLite WAL, schema validation, deduplication, export)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+koru-event = { workspace = true }
+rusqlite = { workspace = true }
+serde = { workspace = true }
+sha2 = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+rustix = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+
+[lints]
+workspace = true

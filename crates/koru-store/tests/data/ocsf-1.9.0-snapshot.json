@@ -1,0 +1,3693 @@
+{
+ "input_digests": {
+  "objects/actor.json": "fe158061df703050d65dcbdf0cdd192f20433bf496c3a8262fff64e2eb3c1fe7",
+  "objects/analytic.json": "584c83a1b40c208f3cebab266e2fe2c0c47af6eab29548c431b6005601825f3e",
+  "objects/attack.json": "c9581c9c61c5e6880fb3ae367e30c7eebb39bfab302832bf4e680dbf129e05c5",
+  "objects/container.json": "7be8225c8c47a0026f55621b5ddb5cd6be92bff89fa056b16834b69a9dcdc423",
+  "objects/device.json": "557a415492e15cc1c914613c2fe7e979ef71b768c71087f0dfed67f9857506e5",
+  "objects/evidences.json": "5030f5f29df7d455cc4d65a96d0dd126ffbd06122dfbe32220532a3af3a6f42f",
+  "objects/file.json": "0f36ec45844d03935c8bdbab807cc64eb77f2664c8a6dc252cab604cb2014e73",
+  "objects/finding_info.json": "d3da0d0b7003a76d5eeaba224345a97ddcd4e86062200d7433bea7977c3202f7",
+  "objects/image.json": "477808f3448216bdf67dfdb2daa6372c85ea1d8c5117728ad07f3ee2895ce5e1",
+  "objects/metadata.json": "dd025e12aee352f7969b07cbb7b5ded5160551b4d548a244fed7e808e4fae1bb",
+  "objects/network_connection_info.json": "ddc4ed7a0835bd91bcf84f4d5d257861c6472c0099a3e0e07b9b07174832623f",
+  "objects/network_endpoint.json": "2c2e656ac6a2b29ee97766930f2ce7bf89fec888a16196e2bab9b912ab81be89",
+  "objects/observable.json": "8cbb08abf58ed5a70f64e8a014b518233d89b5f2a2f459302b55e1318c61b545",
+  "objects/process.json": "76fc59cc0603c735cf945a56b7d02e3f07734d5b5acfa097ee68cd7a953c7480",
+  "objects/product.json": "189c2220cd4b716658c2ec4a07bc7c4ec3dfc8dd360027015ebc50e5c80e712e",
+  "objects/reporter.json": "251a94970baeb2a1538d7125d248e7c301e1a3753a42969158bcb7fcdaaa6f02",
+  "objects/sub_technique.json": "0b5a548ad133a62de5570cf30f50c47cb33b4db03b2344f90e038193bb5b01d1",
+  "objects/tactic.json": "5b815db6fd4bd4db86f9342bb00177474bbef4ba03e80ca152fc106347b63d28",
+  "objects/technique.json": "191825ca23b0476f2aaa4317acca8a002ebe3f0491ef5fb9c061ba322aaad0a1",
+  "objects/user.json": "9688046b18e13fc2de6b14237962ea47449670b9beb7c586f9cd45981d6cfba1",
+  "classes/detection_finding.json": "9db708dd7027b657983c8c11dca2d6a8accaf9d31aebfad7c90acfc569cd7361",
+  "classes/file_activity.json": "c54d7be9958e82343697fe753073e78901e60be880f41c3a1e928d1882eb92d9",
+  "classes/network_activity.json": "90394f657995aedbe9a00a93440af7acfa41acea4194e21d7219931f7ca207d0",
+  "classes/process_activity.json": "2700227c1b7b74261a041cdaf4d3b71e2a271bdf5a92ae0a63e82fe0f71dc628",
+  "data-types.json": "07a121c450720375e60d5bea2af85af02757582e3c571684265bc4eaa465830f"
+ },
+ "source": "https://schema.ocsf.io/1.9.0/api (profiles=host)",
+ "objects": {
+  "actor": {
+   "at_least_one": [
+    "app_name",
+    "app_uid",
+    "application",
+    "iam_role",
+    "invoked_by",
+    "process",
+    "session",
+    "user"
+   ],
+   "attributes": {
+    "app_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "app_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "application": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "application"
+    },
+    "authorizations": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "authorization"
+    },
+    "iam_role": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "iam_role"
+    },
+    "idp": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "idp"
+    },
+    "invoked_by": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "process": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "process"
+    },
+    "session": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "session"
+    },
+    "user": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "user"
+    }
+   },
+   "exactly_one": [],
+   "required": []
+  },
+  "analytic": {
+   "at_least_one": [
+    "name",
+    "uid"
+   ],
+   "attributes": {
+    "algorithm": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "category": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "desc": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "related_analytics": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "analytic"
+    },
+    "sensor_info_list": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "sensor_info"
+    },
+    "state": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "state_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "99"
+     ],
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "type": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "type_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "99"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "uid_numeric": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "version": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    }
+   },
+   "exactly_one": [],
+   "required": [
+    "type_id"
+   ]
+  },
+  "attack": {
+   "at_least_one": [
+    "sub_technique",
+    "tactic",
+    "technique"
+   ],
+   "attributes": {
+    "mitigation": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "mitigation"
+    },
+    "sub_technique": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "sub_technique"
+    },
+    "tactic": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "tactic"
+    },
+    "tactics": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "tactic"
+    },
+    "technique": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "technique"
+    },
+    "version": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    }
+   },
+   "exactly_one": [],
+   "required": []
+  },
+  "container": {
+   "at_least_one": [
+    "name",
+    "uid"
+   ],
+   "attributes": {
+    "hash": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "fingerprint"
+    },
+    "image": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "image"
+    },
+    "labels": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "network_driver": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "orchestrator": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "pod_uuid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "runtime": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "size": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "tag": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "tags": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "key_value_object"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    }
+   },
+   "exactly_one": [],
+   "required": []
+  },
+  "device": {
+   "at_least_one": [
+    "hostname",
+    "instance_uid",
+    "interface_name",
+    "interface_uid",
+    "ip",
+    "name",
+    "uid"
+   ],
+   "attributes": {
+    "agent_list": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "agent"
+    },
+    "autoscale_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "boot_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "boot_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "created_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "desc": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "domain": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "eid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "first_seen_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "groups": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "group"
+    },
+    "hostname": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "hw_info": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "device_hw_info"
+    },
+    "hypervisor": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "iccid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "image": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "image"
+    },
+    "imei": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "imei_list": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "instance_uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "interface_name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "interface_uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "ip": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "is_backed_up": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "bool"
+    },
+    "is_compliant": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "bool"
+    },
+    "is_managed": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "bool"
+    },
+    "is_mobile_account_active": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "bool"
+    },
+    "is_personal": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "bool"
+    },
+    "is_shared": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "bool"
+    },
+    "is_supervised": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "bool"
+    },
+    "is_trusted": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "bool"
+    },
+    "last_seen_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "location": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "location"
+    },
+    "mac": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "mac_vendor": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "meid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "model": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "modified_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "network_interfaces": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "network_interface"
+    },
+    "org": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "organization"
+    },
+    "os": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "os"
+    },
+    "os_machine_uuid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "owner": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "user"
+    },
+    "peripheral_devices": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "peripheral_device"
+    },
+    "pool": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "group"
+    },
+    "region": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "risk_level": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "risk_level_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "99"
+     ],
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "risk_score": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "subnet": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "subnet_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "type": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "type_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "99"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "udid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "uid_alt": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "uid_numeric": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "vendor_name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "vlan_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "vpc_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "zone": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    }
+   },
+   "exactly_one": [],
+   "required": [
+    "type_id"
+   ]
+  },
+  "evidences": {
+   "at_least_one": [
+    "actor",
+    "api",
+    "connection_info",
+    "data",
+    "database",
+    "databucket",
+    "device",
+    "dst_endpoint",
+    "email",
+    "file",
+    "job",
+    "process",
+    "query",
+    "reg_key",
+    "reg_value",
+    "script",
+    "src_endpoint",
+    "url",
+    "user",
+    "win_service"
+   ],
+   "attributes": {
+    "actor": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "actor"
+    },
+    "ai_agent": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "ai_agent"
+    },
+    "api": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "api"
+    },
+    "connection_info": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "network_connection_info"
+    },
+    "container": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "container"
+    },
+    "data": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "any"
+    },
+    "database": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "database"
+    },
+    "databucket": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "databucket"
+    },
+    "device": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "device"
+    },
+    "dst_endpoint": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "network_endpoint"
+    },
+    "email": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "email"
+    },
+    "file": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "file"
+    },
+    "http_request": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "http_request"
+    },
+    "http_response": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "http_response"
+    },
+    "ja4_fingerprint_list": {
+     "array": true,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "ja4_fingerprint"
+    },
+    "job": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "job"
+    },
+    "name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "process": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "process"
+    },
+    "query": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "dns_query"
+    },
+    "reg_key": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "win/reg_key"
+    },
+    "reg_value": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "win/reg_value"
+    },
+    "resources": {
+     "array": true,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "resource_details"
+    },
+    "script": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "script"
+    },
+    "src_endpoint": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "network_endpoint"
+    },
+    "tls": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "tls"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "uid_numeric": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "url": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "url"
+    },
+    "user": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "user"
+    },
+    "verdict": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "verdict_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "99"
+     ],
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "win_service": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "win/win_service"
+    }
+   },
+   "exactly_one": [],
+   "required": []
+  },
+  "file": {
+   "at_least_one": [],
+   "attributes": {
+    "accessed_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "accessor": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "user"
+    },
+    "attributes": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "company_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "confidentiality": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "confidentiality_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "99"
+     ],
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "created_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "creator": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "user"
+    },
+    "desc": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "download_info": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "download_info"
+    },
+    "drive_type": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "drive_type_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "99"
+     ],
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "encryption_details": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "encryption_details"
+    },
+    "ext": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "hashes": {
+     "array": true,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "fingerprint"
+    },
+    "imported_symbols": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "internal_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "is_deleted": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "bool"
+    },
+    "is_encrypted": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "bool"
+    },
+    "is_readonly": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "bool"
+    },
+    "is_system": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "bool"
+    },
+    "mime_type": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "modified_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "modifier": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "user"
+    },
+    "name": {
+     "array": false,
+     "requirement": "required",
+     "mode": "str"
+    },
+    "owner": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "user"
+    },
+    "parent_folder": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "path": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "product": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "product"
+    },
+    "security_descriptor": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "signature": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "digital_signature"
+    },
+    "signatures": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "digital_signature"
+    },
+    "size": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "tags": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "key_value_object"
+    },
+    "type": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "type_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "99"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "uid_numeric": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "uri": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "url": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "url"
+    },
+    "version": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "volume": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "xattributes": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "object"
+    }
+   },
+   "exactly_one": [],
+   "required": [
+    "name",
+    "type_id"
+   ]
+  },
+  "finding_info": {
+   "at_least_one": [],
+   "attributes": {
+    "analytic": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "analytic"
+    },
+    "attack_graph": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "graph"
+    },
+    "attacks": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "attack"
+    },
+    "created_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "data_sources": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "desc": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "first_seen_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "kill_chain": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "kill_chain_phase"
+    },
+    "last_seen_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "modified_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "product": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "product"
+    },
+    "product_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "related_analytics": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "analytic"
+    },
+    "related_events": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "related_event"
+    },
+    "related_events_count": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "src_url": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "tags": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "key_value_object"
+    },
+    "title": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "traits": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "trait"
+    },
+    "types": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "required",
+     "mode": "str"
+    },
+    "uid_alt": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    }
+   },
+   "exactly_one": [],
+   "required": [
+    "uid"
+   ]
+  },
+  "image": {
+   "at_least_one": [],
+   "attributes": {
+    "labels": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "path": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "tag": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "tags": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "key_value_object"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "required",
+     "mode": "str"
+    },
+    "uid_numeric": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    }
+   },
+   "exactly_one": [],
+   "required": [
+    "uid"
+   ]
+  },
+  "metadata": {
+   "at_least_one": [],
+   "attributes": {
+    "correlation_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "debug": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "event_code": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "extension": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "extension"
+    },
+    "extensions": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "extension"
+    },
+    "is_truncated": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "bool"
+    },
+    "labels": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "log_format": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "log_level": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "log_name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "log_provider": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "log_source": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "log_version": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "logged_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "loggers": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "logger"
+    },
+    "modified_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "original_event_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "original_time": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "processed_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "product": {
+     "array": false,
+     "requirement": "required",
+     "mode": "obj",
+     "object": "product"
+    },
+    "profiles": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "reporter": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "reporter"
+    },
+    "sequence": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "source": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "tags": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "key_value_object"
+    },
+    "tenant_uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "total_queued_duration": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "timespan"
+    },
+    "transformation_info_list": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "transformation_info"
+    },
+    "transmit_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "type": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "untruncated_size": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "version": {
+     "array": false,
+     "requirement": "required",
+     "mode": "str"
+    }
+   },
+   "exactly_one": [],
+   "required": [
+    "product",
+    "version"
+   ]
+  },
+  "network_connection_info": {
+   "at_least_one": [],
+   "attributes": {
+    "boundary": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "boundary_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "99"
+     ],
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "community_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "direction": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "direction_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "99"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "flag_history": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "protocol_name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "protocol_num": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "protocol_ver": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "protocol_ver_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "4",
+      "6",
+      "99"
+     ],
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "session": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "session"
+    },
+    "tcp_flags": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    }
+   },
+   "exactly_one": [],
+   "required": [
+    "direction_id"
+   ]
+  },
+  "network_endpoint": {
+   "at_least_one": [
+    "domain",
+    "hostname",
+    "instance_uid",
+    "interface_name",
+    "interface_uid",
+    "ip",
+    "name",
+    "svc_name",
+    "uid"
+   ],
+   "attributes": {
+    "agent_list": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "agent"
+    },
+    "autonomous_system": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "autonomous_system"
+    },
+    "domain": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "fingerprints": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "fingerprint"
+    },
+    "hostname": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "hw_info": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "device_hw_info"
+    },
+    "instance_uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "interface_name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "interface_uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "intermediate_ips": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "ip": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "isp": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "isp_org": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "location": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "location"
+    },
+    "mac": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "mac_vendor": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "network_scope": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "network_scope_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "99"
+     ],
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "os": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "os"
+    },
+    "owner": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "user"
+    },
+    "pool": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "group"
+    },
+    "port": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "proxy_endpoint": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "network_proxy"
+    },
+    "subnet_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "svc_name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "type": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "type_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "99"
+     ],
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "uid_numeric": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "vlan_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "vpc_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "zone": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    }
+   },
+   "exactly_one": [],
+   "required": []
+  },
+  "observable": {
+   "at_least_one": [],
+   "attributes": {
+    "event_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "reputation": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "reputation"
+    },
+    "type": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "type_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26",
+      "27",
+      "28",
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37",
+      "38",
+      "39",
+      "40",
+      "41",
+      "42",
+      "43",
+      "44",
+      "45",
+      "46",
+      "47",
+      "48",
+      "49",
+      "50",
+      "99"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "type_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "value": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    }
+   },
+   "exactly_one": [],
+   "required": [
+    "type_id"
+   ]
+  },
+  "process": {
+   "at_least_one": [
+    "cpid",
+    "pid",
+    "uid"
+   ],
+   "attributes": {
+    "ancestry": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "process_entity"
+    },
+    "cmd_line": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "cpid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "created_time": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "environment_variables": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "environment_variable"
+    },
+    "file": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "file"
+    },
+    "hosted_services": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "win/win_service"
+    },
+    "integrity": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "integrity_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "99"
+     ],
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "lineage": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "loaded_modules": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "parent_process": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "process"
+    },
+    "path": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "pid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "ptid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "sandbox": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "session": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "session"
+    },
+    "terminated_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "tid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "uid_numeric": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "user": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "user"
+    },
+    "working_directory": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "xattributes": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "object"
+    }
+   },
+   "exactly_one": [],
+   "required": []
+  },
+  "product": {
+   "at_least_one": [
+    "name",
+    "uid"
+   ],
+   "attributes": {
+    "cpe_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "feature": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "feature"
+    },
+    "lang": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "path": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "uid_numeric": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "url_string": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "vendor_name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "version": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    }
+   },
+   "exactly_one": [],
+   "required": []
+  },
+  "reporter": {
+   "at_least_one": [
+    "hostname",
+    "ip",
+    "name",
+    "uid"
+   ],
+   "attributes": {
+    "hostname": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "ip": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "org": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "organization"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "uid_numeric": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    }
+   },
+   "exactly_one": [],
+   "required": []
+  },
+  "sub_technique": {
+   "at_least_one": [
+    "name",
+    "uid"
+   ],
+   "attributes": {
+    "name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "src_url": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "uid_numeric": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    }
+   },
+   "exactly_one": [],
+   "required": []
+  },
+  "tactic": {
+   "at_least_one": [
+    "name",
+    "uid"
+   ],
+   "attributes": {
+    "name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "src_url": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "uid_numeric": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    }
+   },
+   "exactly_one": [],
+   "required": []
+  },
+  "technique": {
+   "at_least_one": [
+    "name",
+    "uid"
+   ],
+   "attributes": {
+    "name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "src_url": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "uid_numeric": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    }
+   },
+   "exactly_one": [],
+   "required": []
+  },
+  "user": {
+   "at_least_one": [
+    "account",
+    "name",
+    "uid"
+   ],
+   "attributes": {
+    "account": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "account"
+    },
+    "credential_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "display_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "domain": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "email_addr": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "forward_addr": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "full_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "groups": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "group"
+    },
+    "has_mfa": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "bool"
+    },
+    "ldap_person": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "ldap_person"
+    },
+    "name": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "org": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "organization"
+    },
+    "phone_number": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "programmatic_credentials": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "programmatic_credential"
+    },
+    "risk_level": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "risk_level_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "99"
+     ],
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "risk_score": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "type": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "type_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "99"
+     ],
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "uid": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "uid_alt": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "uid_numeric": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    }
+   },
+   "exactly_one": [],
+   "required": []
+  }
+ },
+ "ocsf_version": "1.9.0",
+ "classes": {
+  "detection_finding": {
+   "name": "Detection Finding",
+   "at_least_one": [],
+   "category_uid": 2,
+   "attributes": {
+    "activity_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "99"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "activity_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "actor": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "actor"
+    },
+    "anomaly_analyses": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "anomaly_analysis"
+    },
+    "category_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "category_uid": {
+     "array": false,
+     "enum": [
+      "2"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "class_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "class_uid": {
+     "array": false,
+     "enum": [
+      "2004"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "comment": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "confidence": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "confidence_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "99"
+     ],
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "confidence_score": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "count": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "device": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "device"
+    },
+    "duration": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "end_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "enrichments": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "enrichment"
+    },
+    "evidences": {
+     "array": true,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "evidences"
+    },
+    "finding_info": {
+     "array": false,
+     "requirement": "required",
+     "mode": "obj",
+     "object": "finding_info"
+    },
+    "impact": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "impact_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "99"
+     ],
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "impact_score": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "is_alert": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "bool"
+    },
+    "malware": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "malware"
+    },
+    "malware_scan_info": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "malware_scan_info"
+    },
+    "message": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "metadata": {
+     "array": false,
+     "requirement": "required",
+     "mode": "obj",
+     "object": "metadata"
+    },
+    "notes": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "note"
+    },
+    "observables": {
+     "array": true,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "observable"
+    },
+    "raw_data": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "raw_data_hash": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "fingerprint"
+    },
+    "raw_data_size": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "remediation": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "remediation"
+    },
+    "resources": {
+     "array": true,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "resource_details"
+    },
+    "risk_details": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "risk_level": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "risk_level_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "99"
+     ],
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "risk_score": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "severity": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "severity_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "99"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "start_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "status": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "status_code": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "status_detail": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "status_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "99"
+     ],
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "time": {
+     "array": false,
+     "requirement": "required",
+     "mode": "int"
+    },
+    "timezone_offset": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "type_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "type_uid": {
+     "array": false,
+     "enum": [
+      "200400",
+      "200401",
+      "200402",
+      "200403",
+      "200499"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "unmapped": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "object"
+    },
+    "vendor_attributes": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "vendor_attributes"
+    },
+    "vulnerabilities": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "vulnerability"
+    }
+   },
+   "class_uid": 2004,
+   "exactly_one": [],
+   "required": [
+    "activity_id",
+    "category_uid",
+    "class_uid",
+    "finding_info",
+    "metadata",
+    "severity_id",
+    "time",
+    "type_uid"
+   ]
+  },
+  "file_activity": {
+   "name": "File System Activity",
+   "at_least_one": [],
+   "category_uid": 1,
+   "attributes": {
+    "access_mask": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "activity_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "99"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "activity_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "actor": {
+     "array": false,
+     "requirement": "required",
+     "mode": "obj",
+     "object": "actor"
+    },
+    "category_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "category_uid": {
+     "array": false,
+     "enum": [
+      "1"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "class_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "class_uid": {
+     "array": false,
+     "enum": [
+      "1001"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "component": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "connection_uid": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "count": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "create_mask": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "device": {
+     "array": false,
+     "requirement": "required",
+     "mode": "obj",
+     "object": "device"
+    },
+    "duration": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "end_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "enrichments": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "enrichment"
+    },
+    "file": {
+     "array": false,
+     "requirement": "required",
+     "mode": "obj",
+     "object": "file"
+    },
+    "file_diff": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "file_result": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "file"
+    },
+    "message": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "metadata": {
+     "array": false,
+     "requirement": "required",
+     "mode": "obj",
+     "object": "metadata"
+    },
+    "observables": {
+     "array": true,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "observable"
+    },
+    "raw_data": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "raw_data_hash": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "fingerprint"
+    },
+    "raw_data_size": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "severity": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "severity_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "99"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "start_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "status": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "status_code": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "status_detail": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "status_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "99"
+     ],
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "time": {
+     "array": false,
+     "requirement": "required",
+     "mode": "int"
+    },
+    "timezone_offset": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "type_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "type_uid": {
+     "array": false,
+     "enum": [
+      "100100",
+      "100101",
+      "100102",
+      "100103",
+      "100104",
+      "100105",
+      "100106",
+      "100107",
+      "100108",
+      "100109",
+      "100110",
+      "100111",
+      "100112",
+      "100113",
+      "100114",
+      "100199"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "unmapped": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "object"
+    }
+   },
+   "class_uid": 1001,
+   "exactly_one": [],
+   "required": [
+    "activity_id",
+    "actor",
+    "category_uid",
+    "class_uid",
+    "device",
+    "file",
+    "metadata",
+    "severity_id",
+    "time",
+    "type_uid"
+   ]
+  },
+  "network_activity": {
+   "name": "Network Activity",
+   "at_least_one": [
+    "dst_endpoint",
+    "src_endpoint"
+   ],
+   "category_uid": 4,
+   "attributes": {
+    "activity_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "99"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "activity_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "actor": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "actor"
+    },
+    "app_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "app_protocol_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "category_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "category_uid": {
+     "array": false,
+     "enum": [
+      "4"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "class_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "class_uid": {
+     "array": false,
+     "enum": [
+      "4001"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "connection_info": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "network_connection_info"
+    },
+    "count": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "cumulative_traffic": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "network_traffic"
+    },
+    "device": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "device"
+    },
+    "dst_endpoint": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "network_endpoint"
+    },
+    "duration": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "end_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "enrichments": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "enrichment"
+    },
+    "initiator": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "initiator_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "99"
+     ],
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "is_src_dst_assignment_known": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "bool"
+    },
+    "ja4_fingerprint_list": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "ja4_fingerprint"
+    },
+    "message": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "metadata": {
+     "array": false,
+     "requirement": "required",
+     "mode": "obj",
+     "object": "metadata"
+    },
+    "network_observation_point": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "network_endpoint"
+    },
+    "observables": {
+     "array": true,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "observable"
+    },
+    "observation_point": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "observation_point_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "99"
+     ],
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "packet_list": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "packet"
+    },
+    "proxy": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "network_proxy"
+    },
+    "raw_data": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "raw_data_hash": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "fingerprint"
+    },
+    "raw_data_size": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "severity": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "severity_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "99"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "src_endpoint": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "network_endpoint"
+    },
+    "start_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "status": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "status_code": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "status_detail": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "status_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "99"
+     ],
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "time": {
+     "array": false,
+     "requirement": "required",
+     "mode": "int"
+    },
+    "timezone_offset": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "tls": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "tls"
+    },
+    "traffic": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "network_traffic"
+    },
+    "type_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "type_uid": {
+     "array": false,
+     "enum": [
+      "400100",
+      "400101",
+      "400102",
+      "400103",
+      "400104",
+      "400105",
+      "400106",
+      "400107",
+      "400199"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "unmapped": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "object"
+    },
+    "url": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "url"
+    }
+   },
+   "class_uid": 4001,
+   "exactly_one": [],
+   "required": [
+    "activity_id",
+    "category_uid",
+    "class_uid",
+    "metadata",
+    "severity_id",
+    "time",
+    "type_uid"
+   ]
+  },
+  "process_activity": {
+   "name": "Process Activity",
+   "at_least_one": [],
+   "category_uid": 1,
+   "attributes": {
+    "activity_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "99"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "activity_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "actor": {
+     "array": false,
+     "requirement": "required",
+     "mode": "obj",
+     "object": "actor"
+    },
+    "actual_permissions": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "category_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "category_uid": {
+     "array": false,
+     "enum": [
+      "1"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "class_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "class_uid": {
+     "array": false,
+     "enum": [
+      "1007"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "count": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "device": {
+     "array": false,
+     "requirement": "required",
+     "mode": "obj",
+     "object": "device"
+    },
+    "duration": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "end_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "enrichments": {
+     "array": true,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "enrichment"
+    },
+    "exit_code": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "injection_type": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "injection_type_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "99"
+     ],
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "launch_type": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "launch_type_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "99"
+     ],
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "message": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "metadata": {
+     "array": false,
+     "requirement": "required",
+     "mode": "obj",
+     "object": "metadata"
+    },
+    "module": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "module"
+    },
+    "observables": {
+     "array": true,
+     "requirement": "recommended",
+     "mode": "obj",
+     "object": "observable"
+    },
+    "process": {
+     "array": false,
+     "requirement": "required",
+     "mode": "obj",
+     "object": "process"
+    },
+    "raw_data": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "raw_data_hash": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "fingerprint"
+    },
+    "raw_data_size": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "requested_permissions": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "severity": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "severity_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "99"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "start_time": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "int"
+    },
+    "status": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "status_code": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "status_detail": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "str"
+    },
+    "status_id": {
+     "array": false,
+     "enum": [
+      "0",
+      "1",
+      "2",
+      "99"
+     ],
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "time": {
+     "array": false,
+     "requirement": "required",
+     "mode": "int"
+    },
+    "timezone_offset": {
+     "array": false,
+     "requirement": "recommended",
+     "mode": "int"
+    },
+    "type_name": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "str"
+    },
+    "type_uid": {
+     "array": false,
+     "enum": [
+      "100700",
+      "100701",
+      "100702",
+      "100703",
+      "100704",
+      "100705",
+      "100799"
+     ],
+     "requirement": "required",
+     "mode": "int"
+    },
+    "unmapped": {
+     "array": false,
+     "requirement": "optional",
+     "mode": "obj",
+     "object": "object"
+    }
+   },
+   "class_uid": 1007,
+   "exactly_one": [],
+   "required": [
+    "activity_id",
+    "actor",
+    "category_uid",
+    "class_uid",
+    "device",
+    "metadata",
+    "process",
+    "severity_id",
+    "time",
+    "type_uid"
+   ]
+  }
+ }
+}

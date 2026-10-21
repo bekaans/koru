@@ -9,6 +9,7 @@ members = [
     "crates/koru-pulsar",
     "crates/koru-decoy",
     "crates/koru-detect",
+    "crates/koru-store",
     "xtask",
 ]
 

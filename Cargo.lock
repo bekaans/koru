@@ -1376,6 +1376,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "koru-store"
+version = "0.1.0"
+dependencies = [
+ "koru-event",
+ "rusqlite",
+ "rustix",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.190"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1387,6 +1401,7 @@ version = "0.38.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f1d20bef17f513b9b3004532233187769cd072d790971f4e4da0e346eb6401e8"
 dependencies = [
+ "cc",
  "pkg-config",
  "vcpkg",
 ]
