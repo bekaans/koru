@@ -1,0 +1,344 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://korusecurity.com/schemas/decoy-template.v1.json",
+  "title": "Koru decoy template, schema v1",
+  "description": "Koru decoy and breadcrumb template (ADR-0004). Templates are packages/decoys/*.toml files; the TOML document corresponds one-to-one to this schema's JSON data model. Rust counterpart: koru_decoy::Template (deny_unknown_fields). A template contains only placeholders: the {{name}}, {{name.sub}}, {{template:name}}, {{template:path}}, and {{file_time.sub}} placeholders and the |lower, |upper filters in the content and path texts are filled at install time with CSPRNG-generated values. The cross-field rules (placeholders being defined, no '..', '.', or empty components in the target path, no 'koru' substring, a secret file being 0600, no fixed secrets in a template, no command field in an MCP decoy) and the generated content's format and safety checks live not in this schema but in koru_decoy::Template::validate and package validation (koru decoy validate).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "description",
+    "kind",
+    "class",
+    "format",
+    "secret",
+    "content",
+    "target",
+    "timestamp"
+  ],
+  "properties": {
+    "schema": {
+      "const": 1,
+      "description": "The template schema version."
+    },
+    "id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "The template's unique id within the package; used in cross-references ({{template:name}}). It cannot contain the 'koru' substring."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "What the template is (in English). It does not enter the installed content."
+    },
+    "kind": {
+      "enum": [
+        "decoy",
+        "breadcrumb"
+      ],
+      "description": "decoy: a file carrying a fake credential or secret value. breadcrumb: a record pointing at fake targets (~/.bash_history, ~/.ssh/config, known_hosts). The detection layer treats the two as separate signals."
+    },
+    "class": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 40,
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "A free class tag (e.g. ssh_key, cloud_credentials, mcp_config). Writing a new tag is enough for a new decoy kind."
+    },
+    "format": {
+      "enum": [
+        "text",
+        "env",
+        "ini",
+        "json",
+        "mcp_json",
+        "sql",
+        "openssh_private_key",
+        "ssh_config",
+        "known_hosts",
+        "bash_history",
+        "markdown"
+      ],
+      "description": "The format of the generated content; at validation, the content is parsed in this format and safety rules are applied."
+    },
+    "secret": {
+      "type": "boolean",
+      "description": "Does the file carry a secret value (key, password, token)? If true, target.mode must be 0o600."
+    },
+    "content": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 65536,
+      "description": "Content with placeholders. If placement is 'append', the block to append to the end of the existing file, and it must end with a newline."
+    },
+    "target": {
+      "$ref": "#/$defs/target"
+    },
+    "timestamp": {
+      "$ref": "#/$defs/time_range"
+    },
+    "values": {
+      "type": "object",
+      "description": "Value generators; the key is the value name (starts with a lowercase letter; path, file_time, and index are reserved).",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]*$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/value"
+      }
+    }
+  },
+  "$defs": {
+    "target": {
+      "type": "object",
+      "description": "The target file.",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "mode",
+        "placement"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "description": "A path relative to the root directory (the target user's home directory) or an absolute path under a root allowed at install time. It cannot contain '..', '.', an empty component, or a backslash. It may refer to simple values via placeholders (e.g. a dated file name)."
+        },
+        "mode": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 511,
+          "description": "The file mode (written in octal in TOML, e.g. 0o600). No execute bit, no write bit for group or others; the owner must be able to read."
+        },
+        "placement": {
+          "enum": [
+            "new_file",
+            "append"
+          ],
+          "description": "new_file: if the target exists, the install is refused (nothing is overwritten). append: appended to the end of the existing file; a backup is taken first, and on removal only the appended lines are removed. Only for line-based formats."
+        }
+      }
+    },
+    "time_range": {
+      "type": "object",
+      "description": "The range for the file's natural modification time (days back from now); the time is chosen weighted toward working hours and weekdays. Usable in content, e.g. {{file_time.date}}.",
+      "additionalProperties": false,
+      "required": [
+        "min_days",
+        "max_days"
+      ],
+      "properties": {
+        "min_days": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3650
+        },
+        "max_days": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3650
+        }
+      }
+    },
+    "value": {
+      "description": "A value generator; the 'kind' field selects the kind.",
+      "oneOf": [
+        { "$ref": "#/$defs/random" },
+        { "$ref": "#/$defs/choice" },
+        { "$ref": "#/$defs/number" },
+        { "$ref": "#/$defs/uuid4" },
+        { "$ref": "#/$defs/bcrypt" },
+        { "$ref": "#/$defs/github_token" },
+        { "$ref": "#/$defs/ssh_ed25519" },
+        { "$ref": "#/$defs/test_net_ipv4" },
+        { "$ref": "#/$defs/timestamp" },
+        { "$ref": "#/$defs/repeat" }
+      ]
+    },
+    "inner_value": {
+      "description": "A value generator inside a repeat (repeats cannot nest).",
+      "oneOf": [
+        { "$ref": "#/$defs/random" },
+        { "$ref": "#/$defs/choice" },
+        { "$ref": "#/$defs/number" },
+        { "$ref": "#/$defs/uuid4" },
+        { "$ref": "#/$defs/bcrypt" },
+        { "$ref": "#/$defs/github_token" },
+        { "$ref": "#/$defs/ssh_ed25519" },
+        { "$ref": "#/$defs/test_net_ipv4" },
+        { "$ref": "#/$defs/timestamp" }
+      ]
+    },
+    "random": {
+      "type": "object",
+      "description": "A random string from an alphabet; an optional fixed prefix and suffix (e.g. base32 with the AKIA prefix).",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "alphabet",
+        "length"
+      ],
+      "properties": {
+        "kind": { "const": "random" },
+        "alphabet": {
+          "enum": [
+            "hex",
+            "hex_upper",
+            "base62",
+            "base64",
+            "base64url",
+            "base32",
+            "digits",
+            "lowercase",
+            "lowercase_digits",
+            "uppercase_digits",
+            "letters"
+          ]
+        },
+        "length": { "type": "integer", "minimum": 1, "maximum": 4096 },
+        "prefix": { "type": "string", "maxLength": 64 },
+        "suffix": { "type": "string", "maxLength": 64 }
+      }
+    },
+    "choice": {
+      "type": "object",
+      "description": "A random choice from a list (name, host name, profile name). Choices cannot contain double quotes, backslashes, or placeholders.",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "options"
+      ],
+      "properties": {
+        "kind": { "const": "choice" },
+        "options": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1000,
+          "items": { "type": "string", "minLength": 1, "maxLength": 256 }
+        }
+      }
+    },
+    "number": {
+      "type": "object",
+      "description": "A random integer in the range (both ends inclusive).",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "min",
+        "max"
+      ],
+      "properties": {
+        "kind": { "const": "number" },
+        "min": { "type": "integer", "minimum": 0 },
+        "max": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "uuid4": {
+      "type": "object",
+      "description": "A random UUID (version 4).",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": { "const": "uuid4" }
+      }
+    },
+    "bcrypt": {
+      "type": "object",
+      "description": "A random value shaped like a bcrypt password hash ($2b$<cost>$...); it is not the hash of a real password.",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "cost"
+      ],
+      "properties": {
+        "kind": { "const": "bcrypt" },
+        "cost": { "type": "integer", "minimum": 4, "maximum": 31 }
+      }
+    },
+    "github_token": {
+      "type": "object",
+      "description": "A value shaped like a GitHub personal access token (ghp_ + 30 characters + a CRC32 checksum); it belongs to no account.",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": { "const": "github_token" }
+      }
+    },
+    "ssh_ed25519": {
+      "type": "object",
+      "description": "A freshly generated ed25519 key pair; authorized nowhere. Sub-fields: private (the OpenSSH private key file), public (ssh-ed25519 AAAA... comment), public_key (without comment).",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "comment"
+      ],
+      "properties": {
+        "kind": { "const": "ssh_ed25519" },
+        "comment": { "type": "string", "maxLength": 128 }
+      }
+    },
+    "test_net_ipv4": {
+      "type": "object",
+      "description": "An IPv4 address from the RFC 5737 documentation networks (192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24); unroutable. The placeholder target of breadcrumbs until the isolated trap VM on the roadmap.",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": { "const": "test_net_ipv4" }
+      }
+    },
+    "timestamp": {
+      "type": "object",
+      "description": "A natural time in the past. Sub-fields: date, time, datetime, iso, unix, year.",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "min_days",
+        "max_days"
+      ],
+      "properties": {
+        "kind": { "const": "timestamp" },
+        "min_days": { "type": "integer", "minimum": 0, "maximum": 3650 },
+        "max_days": { "type": "integer", "minimum": 0, "maximum": 3650 }
+      }
+    },
+    "repeat": {
+      "type": "object",
+      "description": "A random number of repeats of the inner template (e.g. SQL rows); inner values are regenerated per repeat. The inner template may refer to inner values, {{index}}, and the template's own values.",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "min",
+        "max",
+        "separator",
+        "template"
+      ],
+      "properties": {
+        "kind": { "const": "repeat" },
+        "min": { "type": "integer", "minimum": 1, "maximum": 1000 },
+        "max": { "type": "integer", "minimum": 1, "maximum": 1000 },
+        "separator": { "type": "string", "maxLength": 16 },
+        "template": { "type": "string", "minLength": 1, "maxLength": 4096 },
+        "values": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/inner_value"
+          }
+        }
+      }
+    }
+  }
+}

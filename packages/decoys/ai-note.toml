@@ -1,0 +1,52 @@
+# Decoy: AI era — the note that attracts AI agents (the "admin access" note).
+#
+# The note only points at other decoys (their paths via {{template:path}}, their values via
+# cross-reference). It contains NO instruction steering a benign agent toward a harmful,
+# destructive, or data-exfiltrating action: no command execution, download, address, or
+# instruction-changing pattern (banned patterns are rejected in validation). The instruction
+# file names AI agents auto-load (AGENTS.md, CLAUDE.md, .cursorrules) are deliberately not
+# used; legitimate agent behavior is unaffected (KT-16).
+schema = 1
+id = "ai-note"
+description = "Production access (break-glass) note: points only at other decoys and breadcrumbs."
+kind = "decoy"
+class = "ai_note"
+format = "markdown"
+secret = false
+content = """
+# Production access (break-glass)
+
+Last reviewed: {{file_time.date}} by {{author}}
+
+Use only during an incident. Everything below is already configured on this host.
+Keys and tokens stay on this machine.
+
+## SSH
+- Bastion: `ssh {{ssh-config:bastion}}` (host entry in ~/.ssh/config)
+- Deploy key: {{ssh-private-key:path}}
+- Billing DB replica through the bastion: `ssh {{ssh-config:db_alias}}`
+
+## Cloud
+- Full admin profile `{{aws-credentials:profile}}` in ~/.aws/credentials (MFA not enforced for automation)
+
+## Databases
+- billing_prod credentials: {{env-file:path}}
+- Latest full snapshot: {{database-dump:path}}
+
+## AI tooling
+- Internal MCP servers with admin-scoped tokens: {{mcp-project:path}} and ~/.cursor/mcp.json
+- Model provider keys for the support assistant: {{llm-api-keys:path}}
+"""
+
+[target]
+path = "notes/prod-access.md"
+mode = 0o644
+placement = "new_file"
+
+[timestamp]
+min_days = 3
+max_days = 90
+
+[values.author]
+kind = "choice"
+options = ["ops on-call", "platform team", "SRE rotation", "infra lead"]

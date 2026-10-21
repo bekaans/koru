@@ -1,0 +1,27 @@
+# Decoy: a decoy kind added with only a data file (no code change).
+# A fake operations report archive; contains no real data, only points at other decoys.
+schema = 1
+id = "report-archive"
+description = "Fake quarterly operations report archive: claims to contain access summaries, actually only points at decoy paths."
+kind = "decoy"
+class = "report_archive"
+format = "markdown"
+secret = false
+content = """
+# Operations report archive (summary)
+
+Last review: {{file_time.date}}
+
+- Deploy key: {{ssh-private-key:path}}
+- Cloud credentials: {{aws-credentials:path}}
+- Details: {{ai-note:path}}
+"""
+
+[target]
+path = ".local/share/reports/private.txt"
+mode = 0o600
+placement = "new_file"
+
+[timestamp]
+min_days = 7
+max_days = 180

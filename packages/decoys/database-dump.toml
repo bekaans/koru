@@ -1,0 +1,179 @@
+# Decoy: database dump (MySQL, mysqldump format).
+#
+# Admin users (bcrypt-shaped password hashes, API tokens) and a customer table.
+# Rows are generated in a different count and with different values per install (`repeat`).
+# The password hashes are not the hash of a real password; the e-mail addresses sit in the reserved `.internal` domain.
+# The date in the file name matches the file's natural modification time.
+schema = 1
+id = "database-dump"
+description = "Fake mysqldump backup of the payments database: admin users, password hashes, API tokens, and customers."
+kind = "decoy"
+class = "database_dump"
+format = "sql"
+secret = true
+content = """
+-- MySQL dump 10.13  Distrib 8.0.39, for Linux (x86_64)
+--
+-- Host: {{ssh-config:db_ip}}    Database: billing_prod
+-- ------------------------------------------------------
+-- Server version	8.0.39
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `admin_users`
+--
+
+DROP TABLE IF EXISTS `admin_users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `admin_users` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `username` varchar(64) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password_hash` char(60) NOT NULL,
+  `role` varchar(32) NOT NULL DEFAULT 'support',
+  `api_token` char(40) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `admin_users`
+--
+
+LOCK TABLES `admin_users` WRITE;
+/*!40000 ALTER TABLE `admin_users` DISABLE KEYS */;
+INSERT INTO `admin_users` VALUES {{admins}};
+/*!40000 ALTER TABLE `admin_users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `customers`
+--
+
+DROP TABLE IF EXISTS `customers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `customers` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `company` varchar(120) NOT NULL,
+  `contact_name` varchar(120) NOT NULL,
+  `plan` varchar(16) NOT NULL,
+  `stripe_customer_id` varchar(32) DEFAULT NULL,
+  `api_key_hash` char(60) NOT NULL,
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `customers`
+--
+
+LOCK TABLES `customers` WRITE;
+/*!40000 ALTER TABLE `customers` DISABLE KEYS */;
+INSERT INTO `customers` VALUES {{customers}};
+/*!40000 ALTER TABLE `customers` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on {{file_time.datetime}}
+"""
+
+[target]
+path = "backups/mysql/billing_prod_{{file_time.date}}.sql"
+mode = 0o600
+placement = "new_file"
+
+[timestamp]
+min_days = 3
+max_days = 120
+
+[values.domain]
+kind = "choice"
+options = ["corp.internal", "ops.internal", "billing.internal"]
+
+[values.admins]
+kind = "repeat"
+min = 2
+max = 4
+separator = ","
+template = "({{index}},'{{user}}','{{user}}@{{domain}}','{{hash}}','{{role}}','{{token}}','{{created.datetime}}')"
+
+[values.admins.values.user]
+kind = "choice"
+options = ["admin", "mkaya", "j.ortega", "priya.n", "s.lindqvist", "ops-oncall", "finance.lead", "t.becker", "a.moreau", "devops"]
+
+[values.admins.values.hash]
+kind = "bcrypt"
+cost = 12
+
+[values.admins.values.role]
+kind = "choice"
+options = ["superadmin", "admin", "support", "finance"]
+
+[values.admins.values.token]
+kind = "random"
+alphabet = "hex"
+length = 40
+
+[values.admins.values.created]
+kind = "timestamp"
+min_days = 200
+max_days = 1000
+
+[values.customers]
+kind = "repeat"
+min = 6
+max = 14
+separator = ","
+template = "({{index}},'{{company}} {{company_suffix}}','{{first_name}} {{last_name}}','{{plan}}','cus_{{stripe}}','{{hash}}','{{created.datetime}}')"
+
+[values.customers.values.company]
+kind = "choice"
+options = ["Northbridge", "Bluepeak", "Ironleaf", "Silverline", "Harborview", "Redwood", "Brightpath", "Clearwater", "Oakridge", "Stonegate", "Westfield", "Larkspur"]
+
+[values.customers.values.company_suffix]
+kind = "choice"
+options = ["Logistics", "Retail", "Labs", "Systems", "Foods", "Energy", "Travel", "Analytics", "Supply"]
+
+[values.customers.values.first_name]
+kind = "choice"
+options = ["Megan", "Daniel", "Aisha", "Lukas", "Sofia", "Kenji", "Olivia", "Mateo", "Nora", "Ethan", "Leila", "Jonas"]
+
+[values.customers.values.last_name]
+kind = "choice"
+options = ["Clark", "Novak", "Haddad", "Schmidt", "Rossi", "Tanaka", "Walsh", "Silva", "Berg", "Murphy", "Okafor", "Keller"]
+
+[values.customers.values.plan]
+kind = "choice"
+options = ["starter", "pro", "business", "enterprise"]
+
+[values.customers.values.stripe]
+kind = "random"
+alphabet = "base62"
+length = 14
+
+[values.customers.values.hash]
+kind = "bcrypt"
+cost = 10
+
+[values.customers.values.created]
+kind = "timestamp"
+min_days = 30
+max_days = 900

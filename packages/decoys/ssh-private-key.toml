@@ -1,0 +1,39 @@
+# Decoy: SSH private key.
+#
+# A freshly generated ed25519 key authorized on no server (OpenSSH format, no passphrase;
+# readable with `ssh-keygen -l` and `ssh-keygen -y`). The file name and key comment are
+# chosen from a list per install. The `~/.ssh/config` breadcrumb points at this key with {{ssh-private-key:path}}.
+
+schema = 1
+id = "ssh-private-key"
+description = "Fake deploy SSH private key: freshly generated ed25519, authorized nowhere."
+kind = "decoy"
+class = "ssh_key"
+format = "openssh_private_key"
+secret = true
+content = "{{key.private}}"
+
+[target]
+path = ".ssh/{{file_name}}"
+mode = 0o600
+placement = "new_file"
+
+[timestamp]
+min_days = 45
+max_days = 540
+
+[values.file_name]
+kind = "choice"
+options = ["id_ed25519_deploy", "id_ed25519_prod", "deploy_ed25519", "id_ed25519_ci"]
+
+[values.key]
+kind = "ssh_ed25519"
+comment = "{{user}}@{{host}}"
+
+[values.user]
+kind = "choice"
+options = ["deploy", "ci", "release", "ops"]
+
+[values.host]
+kind = "choice"
+options = ["build-02", "ci-runner-1", "jenkins-agent-3", "gitlab-runner", "release-box"]

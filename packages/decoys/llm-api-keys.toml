@@ -1,0 +1,81 @@
+# Decoy: AI era — LLM provider API keys (inside a .env; against LLMjacking).
+#
+# The keys resemble real provider formats (OpenAI project key, Anthropic, Google AI Studio,
+# OpenRouter, Hugging Face, Langfuse) but are randomly generated and belong to no account.
+schema = 1
+id = "llm-api-keys"
+description = ".env file of the support assistant: fake LLM provider API keys and a vector-database address."
+kind = "decoy"
+class = "llm_keys"
+format = "env"
+secret = true
+content = """
+# Support assistant - production
+OPENAI_API_KEY=sk-proj-{{openai_a}}T3BlbkFJ{{openai_b}}
+OPENAI_ORG_ID=org-{{openai_org}}
+ANTHROPIC_API_KEY=sk-ant-api03-{{anthropic}}AA
+GEMINI_API_KEY=AIza{{gemini}}
+OPENROUTER_API_KEY=sk-or-v1-{{openrouter}}
+HF_TOKEN=hf_{{huggingface}}
+LANGFUSE_SECRET_KEY=sk-lf-{{langfuse}}
+VECTOR_DB_URL=http://{{vektor_ip}}:6333
+DEFAULT_MODEL={{model}}
+"""
+
+[target]
+path = "apps/{{assistant}}/.env"
+mode = 0o600
+placement = "new_file"
+
+[timestamp]
+min_days = 7
+max_days = 200
+
+[values.assistant]
+kind = "choice"
+options = ["support-assistant", "ai-helpdesk", "docs-copilot"]
+
+[values.openai_a]
+kind = "random"
+alphabet = "base64url"
+length = 74
+
+[values.openai_b]
+kind = "random"
+alphabet = "base64url"
+length = 74
+
+[values.openai_org]
+kind = "random"
+alphabet = "base62"
+length = 24
+
+[values.anthropic]
+kind = "random"
+alphabet = "base64url"
+length = 93
+
+[values.gemini]
+kind = "random"
+alphabet = "base64url"
+length = 35
+
+[values.openrouter]
+kind = "random"
+alphabet = "hex"
+length = 64
+
+[values.huggingface]
+kind = "random"
+alphabet = "letters"
+length = 34
+
+[values.langfuse]
+kind = "uuid4"
+
+[values.vektor_ip]
+kind = "test_net_ipv4"
+
+[values.model]
+kind = "choice"
+options = ["gpt-4.1-mini", "gpt-4o", "claude-sonnet-4-5", "gemini-2.5-flash"]

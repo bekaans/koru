@@ -1,0 +1,55 @@
+# Decoy: AI era — the code editor's global MCP configuration (`~/.cursor/mcp.json`).
+#
+# KT-17: remote (HTTP) servers only; no `command`, `args`, or `env`.
+schema = 1
+id = "mcp-cursor"
+description = "Global MCP configuration of the code editor: two remote servers with fake issue-tracking and observability tokens."
+kind = "decoy"
+class = "mcp_config"
+format = "mcp_json"
+secret = true
+content = """
+{
+  "mcpServers": {
+    "linear": {
+      "type": "http",
+      "url": "http://{{gecit_ip}}:9000/linear/mcp",
+      "headers": {
+        "Authorization": "Bearer lin_api_{{linear}}"
+      }
+    },
+    "prod-observability": {
+      "type": "streamable-http",
+      "url": "http://{{gozlem_ip}}:4318/mcp",
+      "headers": {
+        "Authorization": "Bearer {{gozlem_jetonu}}"
+      }
+    }
+  }
+}
+"""
+
+[target]
+path = ".cursor/mcp.json"
+mode = 0o600
+placement = "new_file"
+
+[timestamp]
+min_days = 4
+max_days = 180
+
+[values.gecit_ip]
+kind = "test_net_ipv4"
+
+[values.linear]
+kind = "random"
+alphabet = "base62"
+length = 40
+
+[values.gozlem_ip]
+kind = "test_net_ipv4"
+
+[values.gozlem_jetonu]
+kind = "random"
+alphabet = "base64url"
+length = 52

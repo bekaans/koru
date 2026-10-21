@@ -1,0 +1,55 @@
+# Breadcrumb: `~/.ssh/config` entries.
+#
+# Appended to the end of the existing file (backup first; on removal only this block is
+# removed). Only new, wildcard-free aliases are defined; the user's existing connections are unaffected (KT-16).
+# The HostName addresses sit in an RFC 5737 documentation network; once the isolated trap VM ships they will point at it.
+# ProxyCommand, LocalCommand, Match, and Include are rejected in validation.
+schema = 1
+id = "ssh-config"
+description = "SSH configuration breadcrumb: a fake bastion and the database server behind it."
+kind = "breadcrumb"
+class = "ssh_config"
+format = "ssh_config"
+secret = true
+content = """
+
+Host {{bastion}}
+    HostName {{bastion_ip}}
+    User {{user}}
+    IdentityFile {{ssh-private-key:path}}
+    IdentitiesOnly yes
+    ServerAliveInterval 60
+
+Host {{db_alias}}
+    HostName {{db_ip}}
+    User {{user}}
+    IdentityFile {{ssh-private-key:path}}
+    ProxyJump {{bastion}}
+"""
+
+[target]
+path = ".ssh/config"
+mode = 0o600
+placement = "append"
+
+[timestamp]
+min_days = 40
+max_days = 500
+
+[values.bastion]
+kind = "choice"
+options = ["bastion-prod", "jump-prod", "bastion-eu1", "prod-jump"]
+
+[values.db_alias]
+kind = "choice"
+options = ["db-replica", "billing-db", "mysql-prod", "db-prod-ro"]
+
+[values.bastion_ip]
+kind = "test_net_ipv4"
+
+[values.db_ip]
+kind = "test_net_ipv4"
+
+[values.user]
+kind = "choice"
+options = ["deploy", "ops", "ubuntu", "admin"]

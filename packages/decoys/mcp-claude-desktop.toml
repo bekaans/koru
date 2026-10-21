@@ -1,0 +1,52 @@
+# Decoy: AI era — the desktop AI assistant's MCP configuration
+# (`~/.config/Claude/claude_desktop_config.json`).
+#
+# KT-17: remote (HTTP) servers only; no `command`, `args`, or `env`. The GitHub token is in
+# the real format (ghp_ + a CRC32 checksum) but belongs to no account.
+schema = 1
+id = "mcp-claude-desktop"
+description = "MCP configuration of the desktop AI assistant: two remote servers with a fake GitHub token and a production database token."
+kind = "decoy"
+class = "mcp_config"
+format = "mcp_json"
+secret = true
+content = """
+{
+  "mcpServers": {
+    "github": {
+      "type": "http",
+      "url": "http://{{gecit_ip}}:8787/github/mcp",
+      "headers": {
+        "Authorization": "Bearer {{github}}"
+      }
+    },
+    "postgres-prod": {
+      "type": "sse",
+      "url": "http://{{gecit_ip}}:8787/postgres/sse",
+      "headers": {
+        "X-Api-Key": "{{postgres_jetonu}}"
+      }
+    }
+  }
+}
+"""
+
+[target]
+path = ".config/Claude/claude_desktop_config.json"
+mode = 0o600
+placement = "new_file"
+
+[timestamp]
+min_days = 10
+max_days = 240
+
+[values.gecit_ip]
+kind = "test_net_ipv4"
+
+[values.github]
+kind = "github_token"
+
+[values.postgres_jetonu]
+kind = "random"
+alphabet = "hex"
+length = 48

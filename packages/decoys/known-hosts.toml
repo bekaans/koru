@@ -1,0 +1,32 @@
+# Breadcrumb: `~/.ssh/known_hosts` entries.
+#
+# Host keys of the fake bastion and database server (freshly generated ed25519 public keys).
+# Appended to the end of the existing file; on removal only these lines are removed.
+schema = 1
+id = "known-hosts"
+description = "known_hosts breadcrumb: host keys of the fake bastion and database server."
+kind = "breadcrumb"
+class = "known_hosts"
+format = "known_hosts"
+secret = false
+content = """
+{{ssh-config:bastion_ip}} {{bastion_key.public_key}}
+{{ssh-config:db_ip}} {{db_key.public_key}}
+"""
+
+[target]
+path = ".ssh/known_hosts"
+mode = 0o644
+placement = "append"
+
+[timestamp]
+min_days = 40
+max_days = 500
+
+[values.bastion_key]
+kind = "ssh_ed25519"
+comment = ""
+
+[values.db_key]
+kind = "ssh_ed25519"
+comment = ""
