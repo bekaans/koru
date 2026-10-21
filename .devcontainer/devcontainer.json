@@ -1,0 +1,14 @@
+{
+  "name": "Koru development",
+  "build": { "dockerfile": "Dockerfile", "context": ".." },
+  "remoteUser": "developer",
+  "containerEnv": { "CARGO_TERM_COLOR": "never" },
+  "workspaceFolder": "/workspaces/koru",
+  "mounts": [
+    "source=/dev/null,target=/workspaces/koru/.env,type=bind"
+  ],
+  "postCreateCommand": "cargo fetch --locked",
+  "customizations": {
+    "vscode": { "extensions": ["rust-lang.rust-analyzer"] }
+  }
+}
