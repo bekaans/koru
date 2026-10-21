@@ -1,0 +1,4 @@
+# Koru formatting rules (`cargo fmt`; in CI `cargo fmt --all --check`).
+style_edition = "2024"
+max_width = 120
+use_small_heuristics = "Max"

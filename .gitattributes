@@ -1,0 +1,20 @@
+* text=auto eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# PEM files are text
+*.pem text
+
+# Generated files
+Cargo.lock linguist-generated=true
+docs/reports/attack-layer.json linguist-generated=true
+docs/reports/attack-coverage.md linguist-generated=true
+docs/reports/metrics.md linguist-generated=true
+data/golden/** linguist-generated=true

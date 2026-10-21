@@ -1,0 +1,44 @@
+# --- Secrets: only the example files enter the repo ---
+.env
+.env.*
+!.env.example
+
+# Promo site local secrets (Wrangler)
+.dev.vars*
+!.dev.vars.example
+
+# --- Rust build outputs ---
+target/
+lab/out/
+
+# --- Fuzzing ---
+# Seed inputs were added under fuzz/corpus with `git add -f`;
+# new inputs produced by cargo-fuzz stay ignored as untracked files.
+fuzz/artifacts/
+fuzz/corpus/
+fuzz/target/
+
+# --- Docs build ---
+docs-site/book/
+
+# --- Node and Wrangler tooling (promo site) ---
+node_modules/
+.wrangler/
+
+# --- Python ---
+.venv/
+__pycache__/
+*.py[cod]
+
+# --- Editors, tooling and OS ---
+.DS_Store
+.cargo/
+.devcontainer/
+.opencode/
+.vscode/
+
+# --- Local-only material ---
+# Real (VPS) data never enters the repo
+data/real/
+# Temporary asciinema recordings
+*.cast.tmp

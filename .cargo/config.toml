@@ -1,0 +1,3 @@
+# Aliases. `cargo xtask dependency-check` checks the dependency matrix.
+[alias]
+xtask = "run --locked --quiet --package xtask --"

@@ -1,0 +1,305 @@
+# Koru dependency rules (docs/architecture.md#layer-independence).
+#
+# Check: `cargo xtask dependency-check` (in CI on every push and pull request). If the output
+# is not "violations 0", the command exits non-zero and CI breaks.
+#
+# This file is in the protected set (CONTRIBUTING.md#protected-files): only additions are made.
+# Widening an existing permission or emptying a rationale is loosening.
+#
+# Fields:
+#   version          The file-format version (1).
+#   pulsar_source    The source prefix identifying Pulsar packages (cargo metadata "source").
+#   [crate.<name>]   A section per workspace member; a member without a section is a violation.
+#     internal           Allowed internal (workspace member) dependencies.
+#     pulsar_direct      Permission to depend on a Pulsar package directly (koru-pulsar only).
+#     pulsar_transitive  Permission for a Pulsar package to appear in the dependency tree (transitively).
+#   [crate.<name>.external.<dep>]  An allowed direct external dependency:
+#     kinds    "normal", "dev" (dev-dependencies), and/or "build" (build-dependencies).
+#     source    Source prefix; crates.io only when not written.
+#     rationale Why it is needed (must not be empty).
+
+version = 1
+pulsar_source = "git+https://github.com/exein-io/pulsar"
+
+# ---------------------------------------------------------------------------------------------
+# koru-event: the shared event format, schema v1, Untrusted<T>, the cross-layer traits
+# ---------------------------------------------------------------------------------------------
+[crate.koru-event]
+internal = []
+pulsar_direct = false
+pulsar_transitive = false
+
+[crate.koru-event.external.serde]
+kinds = ["normal"]
+rationale = "(De)serialization of event schema v1; rejection of unknown fields with deny_unknown_fields."
+
+[crate.koru-event.external.thiserror]
+kinds = ["normal"]
+rationale = "The std::error::Error implementation of validation and interface error types; zero runtime cost."
+
+[crate.koru-event.external.uuid]
+kinds = ["normal"]
+rationale = "UUIDv7 generation and version checking for event_id (event schema v1)."
+
+[crate.koru-event.external.time]
+kinds = ["normal"]
+rationale = "Converting the time field to UTC, nanosecond-precision RFC 3339 and validating it."
+
+[crate.koru-event.external.serde_json]
+kinds = ["dev"]
+rationale = "Tests only: reading the schema file (schemas/event.v1.json) and JSON examples. Production code is format-independent."
+
+# ---------------------------------------------------------------------------------------------
+# koru-pulsar: the Pulsar bridge; the ONLY crate depending on Pulsar crates (ADR-0001, ADR-0003)
+# ---------------------------------------------------------------------------------------------
+[crate.koru-pulsar]
+internal = ["koru-event"]
+pulsar_direct = true
+pulsar_transitive = true
+
+[crate.koru-pulsar.external.pulsar]
+kinds = ["normal"]
+source = "git+https://github.com/exein-io/pulsar?rev=0bb7bc20d454c35be4d662d6a3cd609e47f31c84"
+rationale = "The embedded module path: running the Koru bridge module inside the Pulsar agent with pulsar_daemon_run + add_module (ADR-0001). Linux only (ADR-0003)."
+
+[crate.koru-pulsar.external.pulsar-core]
+kinds = ["normal"]
+source = "git+https://github.com/exein-io/pulsar?rev=0bb7bc20d454c35be4d662d6a3cd609e47f31c84"
+rationale = "Pulsar event types (Event, Payload), the module interface (SimplePulsarModule), and the process tracker; translation into a Koru event is made from these (ADR-0001). Linux only."
+
+[crate.koru-pulsar.external.tokio]
+kinds = ["normal"]
+rationale = "The Pulsar agent runs on tokio; the event channel (mpsc) from the bridge module and the agent runtime. Pulsar already depends on tokio; no new dependency tree is added. Linux only."
+
+[crate.koru-pulsar.external.thiserror]
+kinds = ["normal"]
+rationale = "Translation and agent error types."
+
+[crate.koru-pulsar.external.serde_json]
+kinds = ["dev"]
+rationale = "Tests and the live translation example: reading recorded Pulsar events and writing Koru events as JSON lines."
+
+# ---------------------------------------------------------------------------------------------
+# Core and output layers: their external dependencies
+# ---------------------------------------------------------------------------------------------
+[crate.koru-decoy]
+internal = ["koru-event"]
+pulsar_direct = false
+pulsar_transitive = false
+
+[crate.koru-detect]
+internal = ["koru-event"]
+pulsar_direct = false
+pulsar_transitive = false
+
+[crate.koru-store]
+internal = ["koru-event"]
+pulsar_direct = false
+pulsar_transitive = false
+
+[crate.koru-notify]
+internal = ["koru-event"]
+pulsar_direct = false
+pulsar_transitive = false
+
+# ---------------------------------------------------------------------------------------------
+# koru: the CLI; the single place where the composition is built. Does not depend on Pulsar directly.
+# ---------------------------------------------------------------------------------------------
+[crate.koru]
+internal = ["koru-event", "koru-pulsar", "koru-decoy", "koru-detect", "koru-store", "koru-notify"]
+pulsar_direct = false
+pulsar_transitive = true
+
+# ---------------------------------------------------------------------------------------------
+# xtask: a development tool only; does not enter the release
+# ---------------------------------------------------------------------------------------------
+[crate.xtask]
+internal = []
+pulsar_direct = false
+pulsar_transitive = false
+
+[crate.xtask.external.serde]
+kinds = ["normal"]
+rationale = "Reading the cargo metadata output and this rules file into types (deny_unknown_fields)."
+
+[crate.xtask.external.serde_json]
+kinds = ["normal"]
+rationale = "The cargo metadata --format-version 1 output is JSON."
+
+[crate.xtask.external.toml]
+kinds = ["normal"]
+rationale = "Parsing the dependency-rules.toml file."
+
+# ---------------------------------------------------------------------------------------------
+# External dependencies of koru-decoy and the koru CLI. Only additions are made;
+# existing entries above are unchanged (CONTRIBUTING.md#protected-files).
+# ---------------------------------------------------------------------------------------------
+[crate.koru-decoy.external.tempfile]
+kinds = ["dev"]
+rationale = "Tests only: root, state, and template-package directories are created in a temporary directory per test; tests never write to the real home directory or system paths."
+
+[crate.koru.external.tempfile]
+kinds = ["dev"]
+rationale = "CLI tests only: the `koru decoy` commands are exercised in temporary root and state directories; HOME is also redirected to a temporary directory."
+
+[crate.koru-decoy.external.serde]
+kinds = ["normal"]
+rationale = "(De)serialization of decoy template schema v1; rejection of unknown fields with deny_unknown_fields (schemas/decoy-template.v1.json)."
+
+[crate.koru-decoy.external.toml]
+kinds = ["normal"]
+rationale = "Parsing the packages/decoys/*.toml templates (decoy definitions are TOML data files). The version already used in xtask; brings no new dependency tree."
+
+[crate.koru-decoy.external.serde_json]
+kinds = ["normal"]
+rationale = "Writing and reading the integrity record (record.json in the state directory) and parsing generated MCP/JSON decoys back for validation (KT-17). Already in the tree."
+
+[crate.koru-decoy.external.thiserror]
+kinds = ["normal"]
+rationale = "Template, package, generation, and install error types; zero runtime cost."
+
+[crate.koru-decoy.external.uuid]
+kinds = ["normal"]
+rationale = "A UUIDv7 id per decoy and install (every decoy has a unique id); the same version and features as koru-event, brings no new crate."
+
+[crate.koru-decoy.external.getrandom]
+kinds = ["normal"]
+rationale = "Generating all decoy values from the operating system's CSPRNG (no predictable generator). The version uuid already uses (0.4)."
+
+[crate.koru-decoy.external.sha2]
+kinds = ["normal"]
+rationale = "RustCrypto SHA-256: content digests in the integrity record and verification of backups (ADR-0004). ed25519-dalek uses the same crate for SHA-512 in ed25519 key derivation."
+
+[crate.koru-decoy.external.ed25519-dalek]
+kinds = ["normal"]
+rationale = "A freshly generated SSH decoy key in the real format: derivation of the ed25519 public key from the private seed (verified with ssh-keygen -l/-y). Curve arithmetic is not hand-written; RustCrypto's ssh-key crate also uses this for ed25519. Default features off (zeroize only); no OpenSSL."
+
+[crate.koru-decoy.external.rustix]
+kinds = ["normal"]
+rationale = "For safe writing as root without unsafe: openat/mkdirat/renameat/unlinkat/statat (O_NOFOLLOW, O_DIRECTORY, O_EXCL), flock, and geteuid: the path is opened component by component, symlink and TOCTOU redirection are refused (ADR-0004). std has no *at calls. Already in the Pulsar tree (1.1.5)."
+
+# ---------------------------------------------------------------------------------------------
+# External dependencies of koru-detect and the koru CLI. Only additions are made;
+# existing entries above are unchanged (CONTRIBUTING.md#protected-files).
+# ---------------------------------------------------------------------------------------------
+[crate.koru-detect.external.serde]
+kinds = ["normal"]
+rationale = "Reading the rule-pack, AI-agent signature, threshold, and allowlist types with deny_unknown_fields (schemas/rule-pack.v1.json, schemas/agent-signature.v1.json)."
+
+[crate.koru-detect.external.serde_json]
+kinds = ["normal"]
+rationale = "The YAML document is first converted to the JSON data model (serde_json::Value); rule types are read from there with deny_unknown_fields; the ATT&CK Navigator layer is produced as JSON. Already in the tree."
+
+[crate.koru-detect.external.toml]
+kinds = ["normal"]
+rationale = "Parsing packages/agents/*.toml signatures, thresholds.toml, and the allowlist. The version used in koru-decoy and xtask; brings no new dependency tree."
+
+[crate.koru-detect.external.thiserror]
+kinds = ["normal"]
+rationale = "Rule, signature, threshold, allowlist, and detector error types; zero runtime cost."
+
+[crate.koru-detect.external.yaml-rust2]
+kinds = ["normal"]
+rationale = "Parsing packages/rules/*.yml (Sigma-compatible YAML). A maintained, pure-Rust, unsafe-free fork recommended by RustSec for yaml-rust; default features (encoding_rs) off. Anchor, alias, tag, duplicate-key, and depth limits are enforced in Koru on top of the event-based parser. serde_yaml (unmaintained), serde_yml (RUSTSEC-2025-0068), and libyaml forks were not chosen (ADR-0005)."
+
+[crate.koru-detect.external.tempfile]
+kinds = ["dev"]
+rationale = "Tests only: broken and incomplete rule, signature, and allowlist files are exercised in temporary directories."
+
+[crate.koru.external.serde_json]
+kinds = ["dev"]
+rationale = "CLI tests and the live detection example (crates/koru/examples) only: parsing the Navigator layer JSON and writing findings as JSON lines."
+
+# ---------------------------------------------------------------------------------------------
+# External dependencies of koru-store (ADR-0006). Only additions are made;
+# existing entries above are unchanged (CONTRIBUTING.md#protected-files).
+# ---------------------------------------------------------------------------------------------
+[crate.koru-store.external.rusqlite]
+kinds = ["normal"]
+rationale = "SQLite WAL store (rusqlite, bundled): fixed version, not bound to the system SQLite. Default features off, only `bundled`; no ORM, pool, or extra features. All queries are parameterized (ADR-0006)."
+
+[crate.koru-store.external.sha2]
+kinds = ["normal"]
+rationale = "RustCrypto SHA-256: the digest of the event key (deduplication; ADR-0006). The version koru-decoy uses; brings no new crate."
+
+[crate.koru-store.external.serde_json]
+kinds = ["normal"]
+rationale = "Storing events as JSON and exporting as JSONL and OCSF; classifying raw input by rejection reason (serde_json::Value first). Already in the tree."
+
+[crate.koru-store.external.serde]
+kinds = ["normal"]
+rationale = "Using event-enum serde names (snake_case) as distribution keys in the threat report. Already in the tree; the same version and features as koru-event."
+
+[crate.koru-store.external.thiserror]
+kinds = ["normal"]
+rationale = "Store and export error types; zero runtime cost."
+
+[crate.koru-store.external.rustix]
+kinds = ["normal"]
+rationale = "For the store file and directory without unsafe: openat(O_NOFOLLOW, O_DIRECTORY, O_EXCL), mkdirat, and fstat: the path is opened component by component, symlinks are refused, owner, mode, type, and link count are checked through the open handle (ADR-0004 principles, ADR-0006). The version and features koru-decoy uses."
+
+[crate.koru-store.external.tempfile]
+kinds = ["dev"]
+rationale = "Tests only: each test runs in its own temporary directory; tests never write to real directories."
+
+# ---------------------------------------------------------------------------------------------
+# External dependencies of koru-notify (ADR-0007). Only additions are made;
+# existing entries above are unchanged (CONTRIBUTING.md#protected-files). The HTTP and SMTP clients
+# are written small and synchronous in Koru; no separate HTTP or SMTP library was added.
+# ---------------------------------------------------------------------------------------------
+[crate.koru-notify.external.rustls]
+kinds = ["normal"]
+rationale = "TLS is rustls only (OpenSSL and native-tls are banned in deny.toml). Default features off: only `std`, `ring` (the crypto provider; aws-lc-rs was not chosen because it brings OpenSSL-licensed C code), and `tls12`. Certificate-chain and hostname verification live in rustls-webpki; hostname verification cannot be disabled (ADR-0007)."
+
+[crate.koru-notify.external.rustls-native-certs]
+kinds = ["normal"]
+rationale = "Root certificates are read from the system certificate store; webpki-roots (CDLA-Permissive-2.0, not added to the license list) is not used. License: Apache-2.0 OR ISC OR MIT (ADR-0007)."
+
+[crate.koru-notify.external.serde]
+kinds = ["normal"]
+rationale = "(De)serialization of the persistent queue record (the queue file, deny_unknown_fields) and the Telegram request body."
+
+[crate.koru-notify.external.serde_json]
+kinds = ["normal"]
+rationale = "The queue file and the Telegram request body are JSON; because strings are escaped, no content injection is possible. Already in the tree."
+
+[crate.koru-notify.external.thiserror]
+kinds = ["normal"]
+rationale = "Notification, queue, and settings error types; zero runtime cost."
+
+[crate.koru-notify.external.rustix]
+kinds = ["normal"]
+rationale = "For the queue directory and file without unsafe: openat(O_NOFOLLOW, O_DIRECTORY, O_EXCL), renameat, unlinkat, fsync, and fstat: symlinks are refused, owner, mode, and link count are checked through the open handle (ADR-0004 principles, ADR-0007). The version and features koru-decoy and koru-store use."
+
+[crate.koru-notify.external.getrandom]
+kinds = ["normal"]
+rationale = "The operating system's CSPRNG for retry-delay jitter (prevents many Koru instances returning from a network outage at the same moment from loading simultaneously). The version koru-decoy uses."
+
+[crate.koru-notify.external.tempfile]
+kinds = ["dev"]
+rationale = "Tests only: queue directories and .env files are created in a temporary directory per test; tests never write to real directories."
+
+[crate.koru-notify.external.rcgen]
+kinds = ["dev"]
+rationale = "Tests only (tests/tls_verification.rs): generates a self-signed certificate at run time to show that the client rejects an unknown certificate against a real TLS server; the private key is not written to a file, no key sits in the repo (gitleaks stays clean). Default features off, crypto provider ring (no aws-lc-rs); MIT or Apache-2.0."
+
+# ---------------------------------------------------------------------------------------------
+# External dependencies of the koru CLI and agent binary (ADR-0008). Only additions are
+# made; existing entries above are unchanged (CONTRIBUTING.md#protected-files). All four are
+# already in the tree (koru-decoy, koru-detect, koru-store); they bring no new crates.
+# ---------------------------------------------------------------------------------------------
+[crate.koru.external.serde]
+kinds = ["normal"]
+rationale = "Reading the single configuration file (TOML) and the install record with deny_unknown_fields (schemas/config.v1.json). The same version as koru-decoy and koru-detect."
+
+[crate.koru.external.toml]
+kinds = ["normal"]
+rationale = "Parsing the configuration and the install record. Only parsing features are on; writing is manual and escaped, no new dependency (toml_writer) is brought in. The same version as koru-decoy, koru-detect, and xtask."
+
+[crate.koru.external.rustix]
+kinds = ["normal"]
+rationale = "For configuration and install files without unsafe: openat(O_NOFOLLOW), fstat, geteuid, and atomic writing (renameat): symlinks and the wrong owner are refused (ADR-0004 principles, ADR-0008). The version and features koru-decoy, koru-store, and koru-notify use."
+
+[crate.koru.external.sha2]
+kinds = ["normal"]
+rationale = "Verification of the release package's SHA256SUMS digests (koru install, koru upgrade). The version koru-decoy and koru-store use."

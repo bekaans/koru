@@ -1,0 +1,7 @@
+# Koru toolchain: the version is pinned (docs/architecture.md#toolchain-and-versions). An upgrade
+# is made as a separate commit and recorded in docs/architecture.md#toolchain-and-versions. In the lab VM
+# lab/scripts/dev-setup.sh, in CI the workflow installs the version in this file.
+[toolchain]
+channel = "1.99.0"
+components = ["clippy", "rustfmt"]
+profile = "minimal"

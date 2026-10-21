@@ -1,0 +1,57 @@
+# Koru cargo workspace (docs/architecture.md#crates-and-layers). Each crate carries a single
+# responsibility; the allowed dependencies between them live in dependency-rules.toml and are
+# checked with `cargo xtask dependency-check`. The toolchain is pinned in rust-toolchain.toml
+# and dependency versions in Cargo.lock; builds and tests run with `--locked`.
+[workspace]
+resolver = "3"
+members = [
+    "xtask",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99"
+license = "Apache-2.0"
+repository = "https://github.com/korusecurity/koru"
+publish = false
+
+[workspace.dependencies]
+koru-event = { path = "crates/koru-event" }
+koru-pulsar = { path = "crates/koru-pulsar" }
+koru-decoy = { path = "crates/koru-decoy" }
+koru-detect = { path = "crates/koru-detect" }
+koru-store = { path = "crates/koru-store" }
+koru-notify = { path = "crates/koru-notify" }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+thiserror = "2.0.21"
+uuid = { version = "1.27.0", default-features = false, features = ["std", "v7", "serde"] }
+time = { version = "0.3.55", default-features = false, features = ["std"] }
+toml = { version = "1.1.8", default-features = false, features = ["parse", "serde", "std"] }
+tempfile = "3.27.0"
+# koru-decoy (rationales in dependency-rules.toml)
+getrandom = "0.4.3"
+sha2 = { version = "0.11.0", default-features = false }
+ed25519-dalek = { version = "3.0.0", default-features = false, features = ["zeroize"] }
+rustix = { version = "1.1.5", default-features = false, features = ["std", "fs", "process"] }
+# koru-detect (rationales in dependency-rules.toml and ADR-0005)
+yaml-rust2 = { version = "0.13.0", default-features = false }
+tokio = { version = "1.53.2", features = ["rt-multi-thread", "macros", "sync"] }
+# koru-store (rationales in dependency-rules.toml and ADR-0006)
+rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
+# koru-notify (rationales in dependency-rules.toml and ADR-0007)
+rustls = { version = "0.23.46", default-features = false, features = ["std", "ring", "tls12"] }
+rustls-native-certs = "0.8.5"
+# koru-notify tests: certificate rejection against a real TLS server (dev only)
+rcgen = { version = "0.14.10", default-features = false, features = ["crypto", "pem", "ring"] }
+# Pulsar: commit 0bb7bc2 on the main branch (ADR-0003; instead of v0.10.1 due to RUSTSEC-2026-0118/0119).
+pulsar = { git = "https://github.com/exein-io/pulsar", rev = "0bb7bc20d454c35be4d662d6a3cd609e47f31c84", default-features = false, features = ["core"] }
+pulsar-core = { git = "https://github.com/exein-io/pulsar", rev = "0bb7bc20d454c35be4d662d6a3cd609e47f31c84" }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[profile.release]
+lto = true
+codegen-units = 1

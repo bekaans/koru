@@ -1,0 +1,173 @@
+# cargo-deny configuration (docs/architecture.md#security: licenses, security advisories, banned
+# dependencies and sources). Run: `cargo deny check` (in CI on every push and pull request).
+#
+# This file is in the protected set (CONTRIBUTING.md#protected-files): existing entries are not changed
+# or loosened; only additions are made. The GPL-2.0 exception is limited to Pulsar's eBPF probe crates
+# (ADR-0001 "License: GPL-2.0 scope").
+# There are two more exceptions: in advisories only
+# RUSTSEC-2021-0139, in licenses only tiny-keccak (CC0-1.0). No other exceptions are written.
+# Only ISC was added to the general allow list (the rustls chain). Rationales are below and in ADR-0003.
+
+[graph]
+# Targets Koru is built for: Linux x86_64 and aarch64 (the agent; both in CI) and macOS aarch64
+# for development. Pulsar enters the graph only on Linux targets.
+targets = ["x86_64-unknown-linux-gnu", "aarch64-unknown-linux-gnu", "aarch64-apple-darwin"]
+all-features = false
+no-default-features = false
+
+[output]
+feature-depth = 1
+
+[advisories]
+# The RustSec database (the default). Vulnerability, unmaintained, and unsound advisories are
+# errors, direct or transitive alike; a yanked version is an error too.
+unmaintained = "all"
+unsound = "all"
+yanked = "deny"
+ignore = [
+    # RUSTSEC-2021-0139: ansi_term 0.12.1 unmaintained (not a vulnerability; "no safe upgrade").
+    # Path: nut 0.1.4 (latest, depends on ansi_term unconditionally) -> bpf-common (the Pulsar core;
+    # does not drop with any feature selection) -> pulsar-core / pulsar -> koru-pulsar.
+    # Re-examined when the Pulsar version changes.
+    # The only exception in advisories; no other advisory is ignored.
+    { id = "RUSTSEC-2021-0139", reason = "ansi_term unmaintained; via nut 0.1.4 -> bpf-common (Pulsar)" },
+]
+
+[licenses]
+# Permissive licenses only. Koru is Apache-2.0.
+allow = [
+    "Apache-2.0",
+    "MIT",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "Unicode-3.0",
+    "Zlib",
+    # ISC: an OSI-approved permissive license equivalent to MIT/BSD-2; needed for the rustls chain (ring, rustls-webpki, untrusted)
+    "ISC",
+]
+confidence-threshold = 0.93
+
+# The GPL-2.0 exception: ONLY the Pulsar crates whose eBPF C source is compiled and embedded
+# into the crate (or provided at build time) (ADR-0001). GPL-2.0-only is not in the global allow list.
+# The last entry (tiny-keccak) is not GPL; it is a crate-specific CC0-1.0 exception.
+exceptions = [
+    { crate = "process-monitor", allow = ["GPL-2.0-only"] },
+    { crate = "network-monitor", allow = ["GPL-2.0-only"] },
+    { crate = "file-system-monitor", allow = ["GPL-2.0-only"] },
+    { crate = "bpf-feature-autodetect", allow = ["GPL-2.0-only"] },
+    { crate = "bpf-filtering", allow = ["GPL-2.0-only"] },
+    { crate = "bpf-builder", allow = ["GPL-2.0-only"] },
+    # tiny-keccak 2.0.2 (CC0-1.0): runs only at build time inside a proc-macro (const-random-macro);
+    # does not enter the release binary. Does not drop with feature selection (every link is unconditional).
+    # Full path: bpf-common (Pulsar) -> rust-ini 0.21 -> ordered-multimap 0.7 -> dlv-list 0.5
+    #          -> const-random 0.1 -> const-random-macro 0.1 -> tiny-keccak 2.0.
+    # CC0-1.0 is not added to the global allow list; the exception is only for this crate.
+    # Re-examined when the Pulsar version changes.
+    { crate = "tiny-keccak", allow = ["CC0-1.0"] },
+]
+
+# The license field in Pulsar crates' Cargo.toml ("Apache-2.0 WITH BPF probes exception under
+# GPL-2.0") is not a valid SPDX expression; cargo-deny counts them as unlicensed. The real scope
+# was derived from source in ADR-0001: userspace crates are Apache-2.0, those containing eBPF
+# probes are Apache-2.0 AND GPL-2.0-only. The source is only the Pulsar repo (sources below).
+[[licenses.clarify]]
+crate = "pulsar"
+expression = "Apache-2.0"
+license-files = []
+
+[[licenses.clarify]]
+crate = "pulsar-core"
+expression = "Apache-2.0"
+license-files = []
+
+[[licenses.clarify]]
+crate = "bpf-common"
+expression = "Apache-2.0"
+license-files = []
+
+[[licenses.clarify]]
+crate = "bpf-features"
+expression = "Apache-2.0"
+license-files = []
+
+[[licenses.clarify]]
+crate = "bpf-features-macros"
+expression = "Apache-2.0"
+license-files = []
+
+[[licenses.clarify]]
+crate = "engine-api"
+expression = "Apache-2.0"
+license-files = []
+
+[[licenses.clarify]]
+crate = "rules-engine"
+expression = "Apache-2.0"
+license-files = []
+
+[[licenses.clarify]]
+crate = "threat-logger"
+expression = "Apache-2.0"
+license-files = []
+
+[[licenses.clarify]]
+crate = "validatron"
+expression = "Apache-2.0"
+license-files = []
+
+[[licenses.clarify]]
+crate = "process-monitor"
+expression = "Apache-2.0 AND GPL-2.0-only"
+license-files = []
+
+[[licenses.clarify]]
+crate = "network-monitor"
+expression = "Apache-2.0 AND GPL-2.0-only"
+license-files = []
+
+[[licenses.clarify]]
+crate = "file-system-monitor"
+expression = "Apache-2.0 AND GPL-2.0-only"
+license-files = []
+
+[[licenses.clarify]]
+crate = "bpf-feature-autodetect"
+expression = "Apache-2.0 AND GPL-2.0-only"
+license-files = []
+
+[[licenses.clarify]]
+crate = "bpf-filtering"
+expression = "Apache-2.0 AND GPL-2.0-only"
+license-files = []
+
+[[licenses.clarify]]
+crate = "bpf-builder"
+expression = "Apache-2.0 AND GPL-2.0-only"
+license-files = []
+
+[licenses.private]
+ignore = false
+
+[bans]
+# Multiple versions of the same crate in Pulsar's dependency tree are unavoidable; reported as
+# warnings. Wildcard versions (*) are banned, except in-workspace path dependencies.
+multiple-versions = "warn"
+wildcards = "deny"
+allow-wildcard-paths = true
+highlight = "all"
+workspace-default-features = "allow"
+external-default-features = "allow"
+# Banned dependencies: rustls only instead of OpenSSL (ADR-0001 conclusion 1: Pulsar's feature
+# selection leaves OpenSSL out; its return must be a conscious decision).
+deny = [
+    { crate = "openssl", reason = "rustls only for TLS; no OpenSSL dependency wanted (ADR-0001)" },
+    { crate = "openssl-sys", reason = "rustls only for TLS; no OpenSSL dependency wanted (ADR-0001)" },
+    { crate = "native-tls", reason = "rustls only for TLS; no OpenSSL dependency wanted (ADR-0001)" },
+]
+
+[sources]
+# Only crates.io and Pulsar's official repo (ADR-0003: a fixed commit on the main branch).
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = ["https://github.com/exein-io/pulsar"]
