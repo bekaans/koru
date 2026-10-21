@@ -1,0 +1,575 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://korusecurity.com/schemas/event.v1.json",
+  "title": "Koru event, schema v1",
+  "description": "Koru's shared event format. Rust counterpart: koru_event::Event. Every field is required; nullable ones take null. Unknown fields are not accepted. An attacker can control the fields marked 'x-koru-untrusted: true' (koru_event::Untrusted). The cross-field rules (e.g. target.path required for file events, actor.reason non-empty when the kind is not 'unknown') live not in this schema but in koru_event::Event::validate.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event_id",
+    "timestamp",
+    "timestamp_trusted",
+    "source_tag",
+    "sensor",
+    "host",
+    "process",
+    "container",
+    "event_type",
+    "target",
+    "actor",
+    "detection",
+    "tags",
+    "session_id",
+    "response"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "description": "The schema version."
+    },
+    "event_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "description": "UUIDv7 (RFC 9562), lowercase and hyphenated."
+    },
+    "timestamp": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "timestamp_trusted": {
+      "type": "boolean",
+      "description": "Whether the clock was NTP-synchronized at event time."
+    },
+    "source_tag": {
+      "enum": [
+        "synthetic",
+        "legitimate",
+        "real"
+      ],
+      "description": "Comes from the install configuration, not from event input. The three kinds never mix."
+    },
+    "sensor": {
+      "type": "object",
+      "description": "The sensor that produced the event.",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "platform"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "platform": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "host": {
+      "type": "string",
+      "minLength": 1
+    },
+    "process": {
+      "type": "object",
+      "description": "The process that produced the event.",
+      "additionalProperties": false,
+      "required": [
+        "pid",
+        "ppid",
+        "start_time",
+        "exe",
+        "command_line",
+        "environment",
+        "user",
+        "lineage"
+      ],
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "ppid": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295,
+          "description": "Bilinmiyorsa 0."
+        },
+        "start_time": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{9}Z$",
+          "description": "Fork time (UTC, ns); null if unknown."
+        },
+        "exe": {
+          "type": "string",
+          "x-koru-untrusted": true
+        },
+        "command_line": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-koru-untrusted": true
+        },
+        "environment": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Not collected yet and empty; if collected, only allowlisted names and masked values.",
+          "x-koru-untrusted": true
+        },
+        "user": {
+          "type": "object",
+          "description": "User and group.",
+          "additionalProperties": false,
+          "required": [
+            "uid",
+            "gid"
+          ],
+          "properties": {
+            "uid": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295,
+              "description": "User id"
+            },
+            "gid": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295,
+              "description": "Group id"
+            }
+          }
+        },
+        "lineage": {
+          "type": "array",
+          "description": "Ancestors: from the nearest parent process to the root.",
+          "items": {
+            "$ref": "#/$defs/ancestor_process"
+          }
+        }
+      }
+    },
+    "container": {
+      "type": "object",
+      "description": "Container context.",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "image",
+        "image_digest",
+        "namespaces"
+      ],
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "x-koru-untrusted": true
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "x-koru-untrusted": true
+        },
+        "image": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "x-koru-untrusted": true
+        },
+        "image_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "x-koru-untrusted": true
+        },
+        "namespaces": {
+          "$ref": "#/$defs/namespaces"
+        }
+      }
+    },
+    "event_type": {
+      "enum": [
+        "file_opened",
+        "file_created",
+        "file_deleted",
+        "file_renamed",
+        "file_link",
+        "directory_created",
+        "directory_deleted",
+        "process_executed",
+        "process_exited",
+        "network_connection",
+        "network_accept"
+      ]
+    },
+    "target": {
+      "type": "object",
+      "description": "The event's target; the filled fields depend on the event kind (koru_event::Event::validate).",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "new_path",
+        "flags",
+        "hard_link",
+        "protocol",
+        "local",
+        "remote",
+        "exit_code"
+      ],
+      "properties": {
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "x-koru-untrusted": true
+        },
+        "new_path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "x-koru-untrusted": true
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "O_RDONLY",
+              "O_WRONLY",
+              "O_RDWR",
+              "O_CREAT",
+              "O_EXCL",
+              "O_NOCTTY",
+              "O_TRUNC",
+              "O_APPEND",
+              "O_NONBLOCK",
+              "O_DIRECTORY"
+            ]
+          }
+        },
+        "hard_link": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "protocol": {
+          "enum": [
+            "tcp",
+            "udp",
+            null
+          ]
+        },
+        "local": {
+          "$ref": "#/$defs/network_endpoint"
+        },
+        "remote": {
+          "$ref": "#/$defs/network_endpoint"
+        },
+        "exit_code": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 4294967295
+        }
+      }
+    },
+    "actor": {
+      "$ref": "#/$defs/actor"
+    },
+    "detection": {
+      "$ref": "#/$defs/detection"
+    },
+    "tags": {
+      "$ref": "#/$defs/tags"
+    },
+    "session_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1,
+      "description": "For session termination (roadmap); null today."
+    },
+    "response": {
+      "$ref": "#/$defs/response"
+    }
+  },
+  "$defs": {
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{9}Z$",
+      "description": "UTC, nanosecond-precision RFC 3339; a single canonical form: YYYY-MM-DDTHH:MM:SS.nnnnnnnnnZ."
+    },
+    "ancestor_process": {
+      "type": "object",
+      "description": "An ancestor process in the lineage.",
+      "additionalProperties": false,
+      "required": [
+        "pid",
+        "exe",
+        "command_line"
+      ],
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "exe": {
+          "type": "string",
+          "x-koru-untrusted": true
+        },
+        "command_line": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-koru-untrusted": true
+        }
+      }
+    },
+    "namespaces": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Namespace inode numbers; null if unknown.",
+      "additionalProperties": false,
+      "required": [
+        "uts",
+        "ipc",
+        "mnt",
+        "pid",
+        "net",
+        "time",
+        "cgroup"
+      ],
+      "properties": {
+        "uts": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295,
+          "description": "uts namespace'i"
+        },
+        "ipc": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295,
+          "description": "ipc namespace'i"
+        },
+        "mnt": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295,
+          "description": "mnt namespace'i"
+        },
+        "pid": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295,
+          "description": "pid namespace'i"
+        },
+        "net": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295,
+          "description": "net namespace'i"
+        },
+        "time": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295,
+          "description": "time namespace'i"
+        },
+        "cgroup": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295,
+          "description": "cgroup namespace'i"
+        }
+      }
+    },
+    "network_endpoint": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Network endpoint; null if none.",
+      "additionalProperties": false,
+      "required": [
+        "ip",
+        "port"
+      ],
+      "properties": {
+        "ip": {
+          "type": "string",
+          "description": "IPv4 or IPv6 address"
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        }
+      }
+    },
+    "mitre_technique": {
+      "type": "string",
+      "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$",
+      "description": "MITRE ATT&CK technique id (T1234 or T1234.001)."
+    },
+    "actor": {
+      "type": "object",
+      "description": "Actor kind estimate (rule-based, with a reason).",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "rationale",
+        "confidence"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "human",
+            "ai_agent",
+            "unknown"
+          ]
+        },
+        "rationale": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "detection": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Detection (finding); otherwise null.",
+      "additionalProperties": false,
+      "required": [
+        "rule",
+        "decoy_id",
+        "threat_class",
+        "attack"
+      ],
+      "properties": {
+        "rule": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decoy_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "threat_class": {
+          "enum": [
+            "decoy_access",
+            "breadcrumb_access",
+            "suspected_hijacked_agent",
+            "self_protection"
+          ]
+        },
+        "attack": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/mitre_technique"
+          }
+        }
+      }
+    },
+    "tags": {
+      "type": "object",
+      "description": "Label fields for AI training.",
+      "additionalProperties": false,
+      "required": [
+        "intent",
+        "mitre_techniques",
+        "verified"
+      ],
+      "properties": {
+        "intent": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "mitre_techniques": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/mitre_technique"
+          }
+        },
+        "verified": {
+          "type": "boolean"
+        }
+      }
+    },
+    "response": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "The response record for session termination (roadmap); null today.",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "timestamp",
+        "rationale"
+      ],
+      "properties": {
+        "action": {
+          "enum": [
+            "record",
+            "monitor",
+            "freeze",
+            "isolate",
+            "terminate"
+          ]
+        },
+        "timestamp": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
