@@ -1,0 +1,20 @@
+# lab/lab.sh sync: paths excluded while the repo is copied into the VM (KT-38).
+# Format: rsync --exclude-from. A line starting with "+ " includes, "- " excludes;
+# the first matching rule wins. Patterns match at every level of the repo.
+#
+# Secrets: .env and .env.* are never copied at any level; only the empty-valued template remains.
++ .env.example
+- .env
+- .env.*
+# Git history (including old contents of deleted files)
+- .git
+# Build and tool outputs
+- target/
+- node_modules/
+- .wrangler/
+# The promo site's local secrets (Wrangler), the example file included
+- .dev.vars*
+# Real (VPS) data: may contain personal data; never enters the lab VM (GDPR/KVKK)
+- /data/real/
+# macOS Finder metadata (can carry the file names in a directory)
+- .DS_Store

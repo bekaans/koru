@@ -1,0 +1,47 @@
+# The Koru "clean VM" template (for the lifecycle test; ADR-0008).
+#
+# A freshly installed Ubuntu 24.04 arm64 with no Koru or dev tools on it. Install, removal,
+# upgrade, and rollback are tried here; when the work is done the VM is deleted
+# (`limactl delete -f koru-clean`). The same image and kernel as koru-lab; no mounts from the Mac.
+# Script: lab/scripts/lifecycle-test.sh. No attack tool or AI agent is RUN in this VM.
+minimumLimaVersion: 2.0.0
+vmType: vz
+os: Linux
+arch: aarch64
+cpus: 2
+memory: 4GiB
+disk: 20GiB
+images:
+- location: "https://cloud-images.ubuntu.com/releases/noble/release-20260926/ubuntu-24.04-server-cloudimg-arm64.img"
+  arch: "aarch64"
+  digest: "sha256:1d6bffe64b848468ac97f821d369a4846d983de1800ccf6b5ec8853e85cefc55"
+mounts: []
+ssh:
+  loadDotSSHPubKeys: false
+  forwardAgent: false
+  forwardX11: false
+  forwardX11Trusted: false
+containerd:
+  system: false
+  user: false
+vmOpts:
+  vz:
+    rosetta:
+      enabled: false
+      binfmt: false
+video:
+  display: none
+timezone: "Etc/UTC"
+user:
+  name: admin
+  comment: "Clean VM administrator"
+portForwards:
+- guestIP: "0.0.0.0"
+  guestIPMustBeZero: false
+  guestPortRange: [1, 65535]
+  proto: any
+  ignore: true
+- guestIP: "127.0.0.1"
+  guestPortRange: [1, 65535]
+  proto: any
+  ignore: true

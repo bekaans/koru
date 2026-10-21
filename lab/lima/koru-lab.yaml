@@ -1,0 +1,290 @@
+# The Koru lab VM (Lima template).
+#
+# Usage: created not directly with limactl but with `lab/lab.sh setup`.
+#
+# Security decisions (attack simulations will run in this VM in later phases):
+# - NO directory is mounted from the Mac into the guest (KT-38). This file
+#   does not import Lima's default templates via `base:`; there is no home (~) mount either. The repo
+#   is copied by `lab/lab.sh sync` to /koru in the guest, excluding `.env`, `.git`, and build outputs
+#   (rsync, over Lima SSH, Mac to guest only).
+# - Automatic port forwarding from guest to Mac is off (portForwards: ignore).
+# - The reverse direction (from the guest to the Mac's 127.0.0.1, via 192.168.5.2 /
+#   host.lima.internal) is blocked by an nftables rule inside the guest (the first provision step).
+#   This rule is NOT a trust boundary; anyone root in the VM can remove it (KT-37).
+# - SSH agent and X11 forwarding are off; ~/.ssh/*.pub is not copied into the VM.
+# - Rosetta, containerd (nerdctl), and display output are off.
+
+minimumLimaVersion: 2.0.0
+
+vmType: vz
+os: Linux
+arch: aarch64
+
+# The performance measurement assumes 4 vCPUs; these values are not changed.
+cpus: 4
+memory: 8GiB
+disk: 40GiB
+
+# The official Ubuntu 24.04 LTS (noble) cloud image, arm64, digest pinned.
+# Source: https://cloud-images.ubuntu.com/releases/noble/release-20260926/SHA256SUMS
+# There is deliberately no fallback (digest-less) image definition: if the image is removed, setup
+# stops and this line is updated with a new release-YYYYMMDD directory and SHA256.
+images:
+- location: "https://cloud-images.ubuntu.com/releases/noble/release-20260926/ubuntu-24.04-server-cloudimg-arm64.img"
+  arch: "aarch64"
+  digest: "sha256:1d6bffe64b848468ac97f821d369a4846d983de1800ccf6b5ec8853e85cefc55"
+
+# No mounts (KT-38). The empty list is written deliberately: if Lima's global configuration
+# (_config/default.yaml, override.yaml) adds a mount, `lab/lab.sh setup` rejects it.
+mounts: []
+
+ssh:
+  loadDotSSHPubKeys: false
+  forwardAgent: false
+  forwardX11: false
+  forwardX11Trusted: false
+
+containerd:
+  system: false
+  user: false
+
+vmOpts:
+  vz:
+    rosetta:
+      enabled: false
+      binfmt: false
+
+# Lima has no audio device by default; display output is off.
+video:
+  display: none
+
+# Event timestamps are UTC; the VM time zone is not inherited from the Mac.
+timezone: "Etc/UTC"
+
+# The guest user does not carry the Mac user's name or full name. The AI attack agent that will
+# run in the VM could read /etc/passwd and send it to an LLM API.
+user:
+  name: koru
+  comment: "Koru lab"
+
+# No port opened in the guest is forwarded to the Mac. These rules match before Lima's appended
+# "127.0.0.1 -> 127.0.0.1" fallback rule gets a turn.
+portForwards:
+- guestIP: "0.0.0.0"
+  guestIPMustBeZero: false
+  guestPortRange: [1, 65535]
+  proto: any
+  ignore: true
+- guestIP: "127.0.0.1"
+  guestPortRange: [1, 65535]
+  proto: any
+  ignore: true
+
+provision:
+# KT-37 interim measure: no new connection is opened from the guest to the Mac's loopback (127.0.0.1).
+#
+# In Lima's user-mode network (usernet) the gateway 192.168.5.2 (host.lima.internal in the guest)
+# is NATed to the Mac's 127.0.0.1. `portForwards: ignore` only turns off guest-to-Mac port
+# forwarding; it does not close this reverse direction.
+#
+# The rule drops, in traffic the guest generates (output) and forwards (forward; containers), every
+# packet to the address that goes to the Mac (host.lima.internal and the default gateway; today both
+# are 192.168.5.2). Exceptions:
+# - Established/related connections: SSH and `limactl shell` from the Mac to the guest work this way.
+# - Lima DNS, UDP and TCP: Lima's 09-host-dns-setup.sh script, when a local DNS port is defined
+#   (e.g. QEMU + slirp), DNATs DNS:53 in the LIMADNS chain to that port on the gateway. Since the
+#   filter runs after DNAT, the allowance is given to the DNAT destination; destinations are read
+#   at every boot from `iptables -t nat -S LIMADNS` output. With no DNAT (today's vz + usernet) DNS
+#   goes directly to port 53 on the gateway and only that is allowed. This port is answered not by
+#   a service on the Mac, but by Lima's usernet resolver.
+# - DHCP lease renewal (UDP 68 -> 67, output only): the client unicasts the renewal to the gateway;
+#   if dropped, the lease is renewed only by the T2 broadcast. Source port 68 is NOT privileged:
+#   Lima writes `net.ipv4.ip_unprivileged_port_start=0` in the guest, so every user in the guest can
+#   send UDP from port 68 to the gateway's port 67. This port is not NATed to the Mac's loopback;
+#   Lima's usernet (gvisor-tap-vsock) DHCP server answers it. The exception therefore opens no path
+#   to services on the Mac (a below-threshold finding; docs/threat-model.md KT-37).
+#
+# THIS RULE IS NOT A TRUST BOUNDARY: the `koru` user has passwordless sudo; anyone root in the VM
+# can delete the rule or bypass it with a raw socket. The durable fix is Mac-side isolation the
+# guest cannot change, done before the end-to-end measurements (KT-37).
+#
+# Persistence: the rule is written to /etc/koru-lab/reverse.nft; koru-lab-reverse.service loads it
+# at every boot before the network is up (network-pre.target). This script also rewrites the file
+# and reloads the rule at every boot; a manually deleted rule thus returns.
+- mode: system
+  script: |
+    #!/bin/bash
+    set -eux -o pipefail
+    export DEBIAN_FRONTEND=noninteractive
+
+    if ! command -v nft >/dev/null 2>&1; then
+      apt-get update
+      apt-get install -y --no-install-recommends nftables
+    fi
+
+    is_ipv4() { [[ "$1" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; }
+    is_port() { [[ "$1" =~ ^[0-9]{1,5}$ ]] && [ "$1" -ge 1 ] && [ "$1" -le 65535 ]; }
+
+    # The address NATed to the Mac: host.lima.internal as written by Lima in /etc/hosts, and the
+    # default gateway. If they differ, both are blocked.
+    mac_addresses=""
+    for a in "$(getent ahostsv4 host.lima.internal | awk 'NR == 1 { print $1 }')" \
+             "$(ip -4 route show default | awk '{ print $3; exit }')"; do
+      is_ipv4 "$a" || { echo >&2 "could not read a Mac address: '${a}'"; exit 1; }
+      case " ${mac_addresses} " in *" ${a} "*) ;; *) mac_addresses="${mac_addresses:+${mac_addresses} }${a}" ;; esac
+    done
+    mac_set="{ ${mac_addresses// /, } }"
+
+    # The destinations of Lima DNS as seen by the filter: the DNAT destinations in the LIMADNS chain;
+    # or, if the chain is empty, port 53 of the Mac addresses.
+    dns_rules=""
+    dnat_lines=$(iptables -t nat -S LIMADNS 2>/dev/null \
+      | sed -nE 's/.* -p (udp|tcp) .*--to-destination ([0-9.]+):([0-9]+).*/\1 \2 \3/p' || true)
+    if [ -n "$dnat_lines" ]; then
+      while read -r proto ip port; do
+        if ! { is_ipv4 "$ip" && is_port "$port"; }; then
+          echo >&2 "invalid LIMADNS destination: ${proto} ${ip}:${port}"
+          exit 1
+        fi
+        dns_rules="${dns_rules}    ip daddr ${ip} ${proto} dport ${port} accept
+    "
+      done <<<"$dnat_lines"
+    else
+      dns_rules="    ip daddr ${mac_set} udp dport 53 accept
+        ip daddr ${mac_set} tcp dport 53 accept
+    "
+    fi
+
+    dnat_summary=$(printf '%s' "${dnat_lines:-none}" | tr '\n' ';')
+
+    tmp_new=$(mktemp)
+    cat >"$tmp_new" <<NFT
+    #!/usr/sbin/nft -f
+    # Koru lab, KT-37 interim measure: no new connection from the guest to the Mac's loopback.
+    # Written at every boot by the lab/lima/koru-lab.yaml provision step; do not edit by hand.
+    # NOT a trust boundary: anyone root in the VM can remove this rule.
+    # Mac addresses: ${mac_addresses}; LIMADNS DNAT targets: ${dnat_summary}
+    table inet koru_lab_reverse
+    delete table inet koru_lab_reverse
+    table inet koru_lab_reverse {
+      chain egress {
+        type filter hook output priority filter; policy accept;
+        ct state established,related accept
+    ${dns_rules}    ip daddr ${mac_set} udp sport 68 udp dport 67 accept
+        ip daddr ${mac_set} counter drop
+      }
+      chain fwd {
+        type filter hook forward priority filter; policy accept;
+        ct state established,related accept
+    ${dns_rules}    ip daddr ${mac_set} counter drop
+      }
+    }
+    NFT
+    nft -c -f "$tmp_new"
+    install -d -m 755 /etc/koru-lab
+    if ! cmp -s "$tmp_new" /etc/koru-lab/reverse.nft; then
+      install -m 644 "$tmp_new" /etc/koru-lab/reverse.nft
+    fi
+    rm -f "$tmp_new"
+
+    unit_tmp=$(mktemp)
+    cat >"$unit_tmp" <<'UNIT'
+    # Koru lab: managed by the lab/lima/koru-lab.yaml provision step.
+    [Unit]
+    Description=Koru lab: block new connections from the guest to the Mac loopback (KT-37 interim measure)
+    DefaultDependencies=no
+    Wants=network-pre.target systemd-modules-load.service local-fs.target
+    Before=network-pre.target shutdown.target
+    After=systemd-modules-load.service local-fs.target
+    Conflicts=shutdown.target
+
+    [Service]
+    Type=oneshot
+    RemainAfterExit=yes
+    ExecStart=/usr/sbin/nft -f /etc/koru-lab/reverse.nft
+
+    [Install]
+    WantedBy=sysinit.target
+    UNIT
+    if ! cmp -s "$unit_tmp" /etc/systemd/system/koru-lab-reverse.service; then
+      install -m 644 "$unit_tmp" /etc/systemd/system/koru-lab-reverse.service
+      systemctl daemon-reload
+    fi
+    rm -f "$unit_tmp"
+    systemctl enable koru-lab-reverse.service
+    systemctl restart koru-lab-reverse.service
+    nft list table inet koru_lab_reverse
+
+# Packages and NTP. Lima runs this script at every boot; the script is idempotent.
+#
+# NTP tool: chrony (not systemd-timesyncd). Rationale:
+# 1) Time authenticated with NTS (RFC 8915): an attacker spoofing NTP replies cannot shift
+#    event timestamps. timesyncd does not support NTS.
+# 2) After Mac sleep/wake the VM clock jumps; `makestep 1 -1` step-corrects any offset
+#    over 1 s on every update.
+# 3) `chronyc tracking` gives offset, stratum, and root delay numerically; a measurable source
+#    for Koru's `timestamp_trusted` flag.
+# 4) The same tool is used on a VPS (Ubuntu 25.10+ also uses chrony + NTS by default).
+- mode: system
+  script: |
+    #!/bin/bash
+    set -eux -o pipefail
+    export DEBIAN_FRONTEND=noninteractive
+
+    # Packages needed for Pulsar and the lab:
+    # - chrony: the NTP/NTS client
+    # - ca-certificates, curl: downloading the Pulsar binaries over HTTPS
+    # - git: fetching the Pulsar rules from a pinned commit
+    # - jq: reading the GitHub releases API response
+    # - rsync: copying the repo from the Mac to /koru (`lab/lab.sh sync`, KT-38)
+    # The Pulsar static binary needs no other library; the kernel needs BPF and BTF
+    # (enabled in the Ubuntu 24.04 generic kernel).
+    packages="chrony ca-certificates curl git jq rsync"
+    missing=""
+    for p in $packages; do
+      if ! dpkg-query -W -f='${Status}' "$p" 2>/dev/null | grep -q "install ok installed"; then
+        missing="$missing $p"
+      fi
+    done
+    if [ -n "$missing" ]; then
+      apt-get update
+      # shellcheck disable=SC2086
+      apt-get install -y --no-install-recommends $missing
+    fi
+
+    tmp_new=$(mktemp)
+    cat >"$tmp_new" <<'CHRONY'
+    # Koru lab: time sources authenticated with NTS (RFC 8915) only.
+    # This file is managed by lab/lima/koru-lab.yaml; do not edit by hand.
+    server time.cloudflare.com iburst nts
+    server nts.netnod.se iburst nts
+    server ptbtime1.ptb.de iburst nts
+    ntsdumpdir /var/lib/chrony
+    driftfile /var/lib/chrony/chrony.drift
+    logdir /var/log/chrony
+    maxupdateskew 100.0
+    # Updates the kernel's sync state (timedatectl NTPSynchronized).
+    rtcsync
+    # Clock jumps after Mac sleep/wake: step-correct on every update when the offset exceeds 1 s.
+    makestep 1 -1
+    leapsectz right/UTC
+    CHRONY
+    if ! cmp -s "$tmp_new" /etc/chrony/chrony.conf; then
+      install -m 644 "$tmp_new" /etc/chrony/chrony.conf
+      systemctl restart chrony
+    fi
+    rm -f "$tmp_new"
+    systemctl enable --now chrony
+
+probes:
+- mode: readiness
+  description: chrony must be installed and running
+  script: |
+    #!/bin/bash
+    set -eux -o pipefail
+    if ! timeout 120s bash -c "until systemctl is-active --quiet chrony; do sleep 2; done"; then
+      echo >&2 "chrony is not running"
+      exit 1
+    fi
+  hint: |
+    Look at /var/log/cloud-init-output.log inside the VM.
