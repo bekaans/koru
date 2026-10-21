@@ -1,0 +1,194 @@
+# Koru CI (see docs/architecture.md#toolchain-and-versions and ADR-0002).
+#
+# This file is protected (see CONTRIBUTING.md#protected-files): changes may only tighten it.
+#
+# - test: build on x86_64 (ubuntu-24.04) and arm64 (ubuntu-24.04-arm),
+#   `cargo test --workspace --locked`, clippy -D warnings, and the rustfmt check.
+# - workflows: actionlint and zizmor (min severity medium) over .github/workflows.
+# - supply-chain: cargo audit, cargo deny check, cargo xtask dependency-check, and gitleaks.
+#   These checks are architecture-independent (deny.toml checks both Linux targets); to avoid
+#   wasting Actions minutes they run once, on x86_64 only.
+#
+# Rules: actions are pinned by commit SHA; GITHUB_TOKEN is read-only; checkout does not persist
+# credentials; cargo-audit and cargo-deny are installed at a fixed version with `--locked` (cached);
+# gitleaks runs from the official binary with a fixed version and SHA-256. No paid features or large runners.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: never
+  CARGO_INCREMENTAL: "0"
+  CARGO_NET_RETRY: "10"
+  RUSTUP_MAX_RETRIES: "10"
+  CARGO_AUDIT_VERSION: "0.22.2"
+  CARGO_DENY_VERSION: "0.20.2"
+  GITLEAKS_VERSION: "8.30.1"
+  GITLEAKS_SHA256: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
+  ACTIONLINT_VERSION: "1.7.12"
+  ACTIONLINT_SHA256: "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
+  ZIZMOR_VERSION: "1.31.1"
+  ZIZMOR_SHA256: "d185f726bdaf92df78273217dfdd24ebcd6b0ef48cf3ce776ff5762b6e138c99"
+
+jobs:
+  test:
+    name: build and test (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: System packages (clang, llvm for Pulsar eBPF probes; SQLite)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends clang llvm libsqlite3-dev pkg-config
+
+      - name: Rust toolchain (rust-toolchain.toml)
+        run: |
+          channel=$(sed -nE 's/^channel = "([0-9]+\.[0-9]+\.[0-9]+)"$/\1/p' rust-toolchain.toml)
+          test -n "$channel"
+          if ! command -v rustup >/dev/null 2>&1; then
+            echo "rustup is missing on the runner" >&2
+            exit 1
+          fi
+          rustup toolchain install "$channel" --profile minimal -c clippy -c rustfmt
+          rustc --version
+          cargo --version
+          uname -m
+
+      - name: Cargo cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: build-${{ matrix.arch }}-${{ hashFiles('rust-toolchain.toml', 'Cargo.lock') }}
+
+      - name: Build
+        run: cargo build --workspace --all-targets --locked
+
+      - name: Tests
+        run: cargo test --workspace --locked
+
+      - name: clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+
+      - name: rustfmt
+        run: cargo fmt --all --check
+
+  supply-chain:
+    name: supply chain and secret scan (x86_64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Check out the repo (full history for gitleaks)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: gitleaks (pinned version, SHA-256 verified; before build outputs)
+        run: |
+          tmpdir=$(mktemp -d)
+          file="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o "${tmpdir}/${file}" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${file}"
+          echo "${GITLEAKS_SHA256}  ${tmpdir}/${file}" | sha256sum -c -
+          tar -xzf "${tmpdir}/${file}" -C "$tmpdir" gitleaks
+          "${tmpdir}/gitleaks" version
+          "${tmpdir}/gitleaks" git --no-banner --redact .
+          "${tmpdir}/gitleaks" dir --no-banner --redact .
+
+      - name: Rust toolchain (rust-toolchain.toml)
+        run: |
+          channel=$(sed -nE 's/^channel = "([0-9]+\.[0-9]+\.[0-9]+)"$/\1/p' rust-toolchain.toml)
+          test -n "$channel"
+          rustup toolchain install "$channel" --profile minimal
+          rustc --version
+
+      - name: Tool cache (cargo-audit, cargo-deny)
+        id: tools
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/bin/cargo-audit
+            ~/.cargo/bin/cargo-deny
+          key: tools-${{ runner.os }}-${{ runner.arch }}-audit${{ env.CARGO_AUDIT_VERSION }}-deny${{ env.CARGO_DENY_VERSION }}-${{ hashFiles('rust-toolchain.toml') }}
+
+      - name: Install cargo-audit and cargo-deny (pinned version, --locked)
+        if: steps.tools.outputs.cache-hit != 'true'
+        run: |
+          cargo install --locked cargo-audit --version "$CARGO_AUDIT_VERSION"
+          cargo install --locked cargo-deny --version "$CARGO_DENY_VERSION"
+
+      - name: Tool versions
+        run: |
+          cargo audit --version
+          cargo deny --version
+
+      - name: cargo audit
+        run: cargo audit
+
+      - name: cargo deny check
+        run: cargo deny check
+
+      - name: cargo xtask dependency-check
+        run: cargo xtask dependency-check
+
+
+  workflows:
+    name: workflow lint (actionlint, zizmor)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install actionlint and zizmor (pinned versions, SHA-256 verified)
+        run: |
+          tmpdir=$(mktemp -d)
+          bindir="${tmpdir}/bin"
+          mkdir -p "$bindir"
+          al="actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o "${tmpdir}/${al}" \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/${al}"
+          echo "${ACTIONLINT_SHA256}  ${tmpdir}/${al}" | sha256sum -c -
+          tar -xzf "${tmpdir}/${al}" -C "$bindir" actionlint
+          zm="zizmor-x86_64-unknown-linux-gnu.tar.gz"
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o "${tmpdir}/${zm}" \
+            "https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/${zm}"
+          echo "${ZIZMOR_SHA256}  ${tmpdir}/${zm}" | sha256sum -c -
+          tar -xzf "${tmpdir}/${zm}" -C "$bindir" zizmor
+          echo "$bindir" >> "$GITHUB_PATH"
+
+      - name: actionlint
+        run: actionlint
+
+      - name: zizmor
+        run: zizmor --min-severity medium .github/workflows
