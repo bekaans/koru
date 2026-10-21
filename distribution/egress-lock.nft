@@ -1,0 +1,17 @@
+# Koru egress lock: drop by default; only DNS, NTP and
+# 443 (notification endpoints + Healthchecks heartbeat) are open. During the maintenance
+# window a temporary per-destination-IP tcp 80/443 rule is added for the package mirror.
+# Apply: nft -f egress-lock.nft ; remove: nft delete table inet koru_lock
+
+table inet koru_lock {
+  chain egress {
+    type filter hook output priority 0; policy drop;
+    oif "lo" accept
+    ct state established,related accept
+    udp dport 53 accept
+    tcp dport 53 accept
+    udp dport 123 accept
+    tcp dport 443 accept
+    counter
+  }
+}

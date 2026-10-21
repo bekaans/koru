@@ -1,0 +1,56 @@
+# systemd unit template (ADR-0008 section 1). `koru install` fills this template with the names and paths
+# in the configuration. Target: `systemd-analyze security` <= 2.5 (written at phase start, not loosened).
+# Capabilities: CAP_BPF and CAP_PERFMON (eBPF programs), CAP_NET_ADMIN (cgroup_skb attach; the network
+# monitor), CAP_SYS_PTRACE (other users' /proc/<pid>/exe links). The syscall filter is order-sensitive:
+# the allow list, the removals, and what is re-added last (bpf, perf_event_open, and fchown). fchown
+# is only for SQLite: it equalizes the owner of the journal/WAL file opened as root to the database
+# file (same owner; without CAP_CHOWN it cannot be transferred to another owner).
+[Unit]
+Description=System service (@SERVICE@)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+ExecStart=@EXEC@ --config @CONFIG@
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+User=root
+UMask=0077
+# Memory budget: limits the glibc arena count; prevents ~24 MB of RSS bloat per
+# arena in the multi-threaded Pulsar runtime (RAM budget < 100 MB; docs/architecture.md#performance-and-resilience).
+# This is the only allowed Environment (a fixed value; checked by the distribution unit test).
+Environment=MALLOC_ARENA_MAX=1 MALLOC_TRIM_THRESHOLD_=131072
+NoNewPrivileges=yes
+CapabilityBoundingSet=CAP_BPF CAP_PERFMON CAP_NET_ADMIN CAP_SYS_PTRACE
+LimitMEMLOCK=infinity
+LimitCORE=0
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateMounts=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RemoveIPC=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources @mount @swap @reboot @raw-io @module @obsolete @cpu-emulation @debug
+SystemCallFilter=bpf perf_event_open fchown
+RuntimeDirectory=@RUNTIME@
+RuntimeDirectoryMode=0700
+ReadWritePaths=@STATE@
+
+[Install]
+WantedBy=multi-user.target
