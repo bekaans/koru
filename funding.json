@@ -1,0 +1,44 @@
+{
+  "$schema": "https://fundingjson.org/schema/v1.json",
+  "version": "v1.0.0",
+  "entity": {
+    "type": "individual",
+    "role": "author",
+    "name": "Koru contributors",
+    "email": "",
+    "description": "Koru is an Apache-2.0 deception-based runtime security tool for Linux servers: honeytoken access detection at kernel level (eBPF) with AI-agent attribution via process lineage.",
+    "webpageUrl": {
+      "url": "https://github.com/korusecurity/koru",
+      "wellKnown": ""
+    }
+  },
+  "projects": [
+    {
+      "guid": "koru",
+      "name": "Koru",
+      "description": "Deception-first runtime defense for the AI era: trap AI attack agents, catch hijacked AI agents.",
+      "webpageUrl": {
+        "url": "https://github.com/korusecurity/koru",
+        "wellKnown": ""
+      },
+      "repositoryUrl": {
+        "url": "https://github.com/korusecurity/koru",
+        "wellKnown": ""
+      },
+      "licenses": ["spdx:Apache-2.0"],
+      "tags": ["security", "ebpf", "deception", "honeypot", "linux"]
+    }
+  ],
+  "funding": {
+    "channels": [
+      {
+        "guid": "github-sponsors",
+        "type": "payment-provider",
+        "address": "https://github.com/sponsors/korusecurity",
+        "description": "GitHub Sponsors (activation pending maintainer approval)"
+      }
+    ],
+    "plans": [],
+    "history": []
+  }
+}

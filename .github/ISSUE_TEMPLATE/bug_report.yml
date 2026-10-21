@@ -1,0 +1,32 @@
+name: Bug report
+description: Report a reproducible problem in Koru
+title: "[bug] "
+labels: ["type: bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. For a security vulnerability, do NOT use this
+        form — see SECURITY.md.
+  - type: input
+    id: version
+    attributes:
+      label: Koru version / commit
+      placeholder: "0.1.0 or commit hash"
+    validations: { required: true }
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Include the exact command and output if possible.
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations: { required: true }
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      placeholder: "uname -a, distribution, cargo --version"

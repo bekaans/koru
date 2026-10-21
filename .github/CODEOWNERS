@@ -1,0 +1,9 @@
+* @imbekaans
+
+# Protected configuration: changes may only tighten these files
+/deny.toml @imbekaans
+/dependency-rules.toml @imbekaans
+/thresholds.toml @imbekaans
+/rust-toolchain.toml @imbekaans
+/.github/workflows/ @imbekaans
+/schemas/ @imbekaans
