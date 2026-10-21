@@ -1,0 +1,25 @@
+# AI-agent process signature (koru-detect). Schema: schemas/agent-signature.v1.json.
+# Matching rests on the exe path and the command line; both are attacker-controlled (KT-02).
+# The signature feeds the actor-kind estimate; decoy access yields a finding regardless of the signature.
+schema = 1
+id = "qwen-code"
+name = "Qwen Code"
+kind = "coding_assistant"
+references = [
+    "https://github.com/QwenLM/qwen-code",
+]
+description = "A terminal AI agent for Qwen models; the npm package @qwen-code/qwen-code installs the qwen command."
+validation_date = "2026-10-10"
+
+# A process started under the name qwen
+[[condition]]
+argv0_name = ["qwen"]
+
+# The qwen script running under Node.js
+[[condition]]
+exe_name = ["node", "nodejs", "bun", "deno"]
+script_name = ["qwen"]
+
+# npm package path
+[[condition]]
+argument_contains = ["@qwen-code/qwen-code"]

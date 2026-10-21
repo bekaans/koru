@@ -1,0 +1,29 @@
+title: 'Modification of the Koru service unit'
+id: 9750fcd0-6712-4f00-ab8b-8348a4c4aae1
+name: koru_service_unit_modified
+status: experimental
+description: 'Modification of the Koru systemd unit file or its drop-in configuration directory. A unit change can prevent Koru from starting or remove its hardening settings.'
+references:
+    - 'https://attack.mitre.org/techniques/T1543/002/'
+    - 'https://attack.mitre.org/techniques/T1685/'
+author: 'Koru'
+date: 2026-10-10
+tags:
+    - attack.persistence
+    - attack.privilege-escalation
+    - attack.defense-impairment
+    - attack.t1543.002
+    - attack.t1685
+logsource:
+    product: linux
+    category: file_event
+detection:
+    protected:
+        koru.protected_kind: 'service'
+        koru.modified: true
+    condition: protected
+falsepositives:
+    - 'A version upgrade via the package manager.'
+level: high
+koru:
+    threat_class: self_protection

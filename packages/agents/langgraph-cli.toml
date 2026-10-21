@@ -1,0 +1,21 @@
+# AI-agent process signature (koru-detect). Schema: schemas/agent-signature.v1.json.
+# Matching rests on the exe path and the command line; both are attacker-controlled (KT-02).
+# The signature feeds the actor-kind estimate; decoy access yields a finding regardless of the signature.
+schema = 1
+id = "langgraph-cli"
+name = "LangGraph CLI"
+kind = "agent_framework"
+references = [
+    "https://github.com/langchain-ai/langgraph/tree/main/libs/cli",
+]
+description = "The CLI that runs LangChain/LangGraph agents locally (package: langgraph-cli; e.g. langgraph dev). Python processes that import the LangChain library directly cannot be recognized from the command line (known limit)."
+validation_date = "2026-10-10"
+
+# A process started under the name langgraph
+[[condition]]
+argv0_name = ["langgraph"]
+
+# The langgraph script running under Python
+[[condition]]
+exe_name = ["python", "python3", "python3.*", "pypy3"]
+script_name = ["langgraph"]

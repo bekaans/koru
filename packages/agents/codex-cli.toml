@@ -1,0 +1,24 @@
+# AI-agent process signature (koru-detect). Schema: schemas/agent-signature.v1.json.
+# Matching rests on the exe path and the command line; both are attacker-controlled (KT-02).
+# The signature feeds the actor-kind estimate; decoy access yields a finding regardless of the signature.
+schema = 1
+id = "codex-cli"
+name = "Codex CLI"
+kind = "coding_assistant"
+references = [
+    "https://github.com/openai/codex",
+]
+description = "OpenAI's terminal coding agent. The install script places the binary at ~/.local/bin/codex; the npm package is named @openai/codex."
+validation_date = "2026-10-10"
+
+# Local binary
+[[condition]]
+exe_name = ["codex"]
+
+# A process started under the name codex
+[[condition]]
+argv0_name = ["codex"]
+
+# npm package path
+[[condition]]
+argument_contains = ["@openai/codex"]

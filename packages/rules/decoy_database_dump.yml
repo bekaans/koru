@@ -1,0 +1,30 @@
+title: 'Read of a decoy database dump'
+id: adf47e83-1468-4af7-908f-5d8ae4d6999f
+name: decoy_database_dump
+status: experimental
+description: 'Read of a fake database dump that is a Koru decoy. The dump contains fake user records and password hashes; a read shows that data and credentials are being collected on the local system. If the process or one of its ancestors matches an AI agent signature, the finding is escalated to the "hijacked agent suspected" class.'
+references:
+    - 'https://attack.mitre.org/techniques/T1005/'
+    - 'https://attack.mitre.org/techniques/T1552/001/'
+author: 'Koru'
+date: 2026-10-10
+modified: 2026-10-16
+tags:
+    - attack.collection
+    - attack.credential-access
+    - attack.t1005
+    - attack.t1552.001
+logsource:
+    product: linux
+    category: file_access
+detection:
+    decoy:
+        koru.decoy_class: 'database_dump'
+        koru.breadcrumb: false
+        koru.read: true
+    condition: decoy
+falsepositives:
+    - 'Broad backup or search jobs that also read decoys (e.g. grep -r); they can be added to the allowlist only by exe path and inode.'
+level: high
+koru:
+    threat_class: decoy_access

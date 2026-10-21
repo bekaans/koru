@@ -1,0 +1,64 @@
+# Koru thresholds (docs/architecture.md#detection-quality-and-measurement; ADR-0005).
+#
+# This file is in the protected set (CONTRIBUTING.md#protected-files): after its first commit,
+# existing values are not changed and fields are not deleted; only new sections and fields are
+# added. Rust type: koru-detect `Thresholds` (deny_unknown_fields); an unknown or missing
+# field is rejected.
+version = 1
+
+# ---------------------------------------------------------------------------------------------
+# Actor-kind estimation (human | ai_agent | unknown)
+#
+# Estimation is rule-based and always recorded with its reason. No decision rests on the user
+# id (uid): Pulsar can show 0 for privilege-dropped processes (KT-43). Process name, exe path,
+# and command line are under attacker control (KT-02); decoy access produces a finding
+# regardless of actor kind.
+# ---------------------------------------------------------------------------------------------
+[actor]
+# The process or an ancestor matches an AI-agent signature (packages/agents/).
+agent_signature_confidence = 0.8
+# A signature and machine speed together.
+agent_signature_and_machine_speed_confidence = 0.9
+# No signature; machine speed and a discovery pattern together.
+machine_speed_and_discovery_confidence = 0.6
+# No signature, no machine speed; an interactive shell in the lineage.
+interactive_shell_confidence = 0.5
+# An interactive shell and measured human speed together.
+interactive_shell_and_human_speed_confidence = 0.65
+
+# Machine speed: when the median of intervals between consecutive commands from the same
+# parent (e.g. a shell or an agent) is below this value.
+[actor.machine_speed]
+command_interval_median_ms = 1000
+# The median needs at least this many command intervals (intervals + 1 commands).
+min_intervals = 3
+# Only commands from the last this many seconds count.
+window_secs = 300
+
+# Human speed: when the same median is above this value.
+[actor.human_speed]
+command_interval_median_ms = 2000
+min_intervals = 2
+
+# Discovery pattern: distinct discovery commands run by the same parent inside the window.
+# Command names are exe base names; a supporting signal, never decisive alone.
+[actor.discovery]
+min_distinct_commands = 4
+window_secs = 300
+commands = [
+    "whoami", "id", "groups", "uname", "hostname", "hostnamectl", "uptime", "ls", "find", "ps",
+    "ss", "netstat", "ip", "ifconfig", "env", "printenv", "w", "who", "last", "lastlog", "df",
+    "mount", "lsblk", "lscpu", "lsof", "getent",
+]
+
+# An interactive shell: the exe's base name is in this list, no -c in argv, and a session
+# shell (argv[0] starts with "-"), -i, -l, or --login is present, or there are no arguments.
+[actor.shell]
+names = ["bash", "sh", "dash", "zsh", "fish", "ksh", "mksh", "tcsh", "csh"]
+
+# Memory bounds for actor state (no unbounded growth under an event flood; KT-31).
+[memory]
+# Most tracked parents (sessions); the oldest drops when full.
+max_sessions = 4096
+# Most command records kept per session.
+max_commands_per_session = 64

@@ -1,0 +1,318 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://korusecurity.com/schemas/rule-pack.v1.json",
+  "title": "Koru rule pack, schema v1 (Sigma v2.1.0-compatible detection rule)",
+  "description": "Koru detection rule (ADR-0005). Rules are packages/rules/*.yml files; each file holds a single YAML document and a single rule, and the file name equals the rule's name field. The YAML document corresponds to this schema's JSON data model; YAML anchors, aliases, tags, and duplicate keys are rejected. The format is a subset of the Sigma v2.1.0 rule specification extended with the 'koru' custom field: every Koru rule is a valid Sigma rule, but not every Sigma rule is a Koru rule. Rust counterpart: koru_detect::Rule (deny_unknown_fields). The following rules live not in this schema but in koru_detect::parse_rule and package validation (koru rule validate): field names being among the supported fields, valid modifier combinations (contains, startswith, endswith, all, exists, cased), the condition expression's syntax and its references to defined search identifiers, at least one ATT&CK technique tag being present and the technique being valid (not revoked) in ATT&CK v20.0, tactic tags matching the techniques' tactics, dates being valid calendar dates, and the id and name fields being unique in the package.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "title",
+    "id",
+    "name",
+    "status",
+    "description",
+    "date",
+    "logsource",
+    "detection",
+    "level",
+    "tags",
+    "koru"
+  ],
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "A short title (Sigma: at most 256 characters)."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "description": "A globally unique id (UUID, lowercase)."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9_]+$",
+      "description": "A package-unique, readable name; written into a finding's detection.rule field, and equal to the file name."
+    },
+    "related": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/iliski"
+      }
+    },
+    "taxonomy": {
+      "const": "sigma"
+    },
+    "status": {
+      "enum": [
+        "stable",
+        "test",
+        "experimental",
+        "deprecated",
+        "unsupported"
+      ],
+      "description": "Deprecated and unsupported rules are validated but not evaluated."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 65535
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "Creation date (YYYY-MM-DD)."
+    },
+    "modified": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "logsource": {
+      "$ref": "#/$defs/logsource"
+    },
+    "detection": {
+      "$ref": "#/$defs/detection"
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "falsepositives": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "level": {
+      "enum": [
+        "informational",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 3,
+        "pattern": "^[a-z0-9_-]+(\\.[a-z0-9_-]+)+$"
+      },
+      "contains": {
+        "type": "string",
+        "pattern": "^attack\\.t[0-9]{4}(\\.[0-9]{3})?$"
+      },
+      "description": "Sigma tags. At least one ATT&CK technique tag (attack.t1234 or attack.t1234.001) is required."
+    },
+    "scope": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "koru": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "threat_class"
+      ],
+      "description": "Koru-specific fields (Sigma's custom field). Removed in Sigma export.",
+      "properties": {
+        "threat_class": {
+          "enum": [
+            "decoy_access",
+            "breadcrumb_access",
+            "suspected_hijacked_agent",
+            "self_protection"
+          ],
+          "description": "The finding's threat class. A decoy_access finding is escalated to the suspected_hijacked_agent class if the process or one of its ancestors matches an AI-agent signature."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "iliski": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "type": {
+          "enum": [
+            "derived",
+            "obsolete",
+            "merged",
+            "renamed",
+            "similar"
+          ]
+        }
+      }
+    },
+    "logsource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "product"
+      ],
+      "description": "Source: exactly one of category or service. category maps onto Koru event kinds: process_creation=process_started, process_termination=process_exited, file_access=file_opened, file_event=all file and directory events, file_delete=file_deleted and dir_deleted, file_rename=file_renamed, network_connection=network_connection and network_accept. service: koru means only events Koru itself produced (e.g. stopped).",
+      "properties": {
+        "product": {
+          "const": "linux"
+        },
+        "category": {
+          "enum": [
+            "process_creation",
+            "process_termination",
+            "file_access",
+            "file_event",
+            "file_delete",
+            "file_rename",
+            "network_connection"
+          ]
+        },
+        "service": {
+          "const": "koru"
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "category"
+          ]
+        },
+        {
+          "required": [
+            "service"
+          ]
+        }
+      ]
+    },
+    "detection": {
+      "type": "object",
+      "required": [
+        "condition"
+      ],
+      "minProperties": 2,
+      "description": "Search identifiers (selections) and condition. Identifier names match ^[A-Za-z_][A-Za-z0-9_]*$; those starting with _ are outside the 'them' scope.",
+      "propertyNames": {
+        "pattern": "^(condition|[A-Za-z_][A-Za-z0-9_]*)$"
+      },
+      "properties": {
+        "condition": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              }
+            }
+          ],
+          "description": "and, or, not, parentheses, '1 of <pattern>', 'all of <pattern>', '1 of them', 'all of them'. If a list is given, the items are joined with or."
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/arama"
+      }
+    },
+    "arama": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/choice"
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/choice"
+          }
+        }
+      ],
+      "description": "A selection (fields joined with and) or a list of selections (items joined with or). Keyword lists without field names are not supported."
+    },
+    "choice": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^[A-Za-z][A-Za-z0-9_.]*(\\|[a-z]+)*$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/value"
+      },
+      "description": "Key: a field name and optional modifiers (field|contains|all). Koru-specific derived fields carry the koru. prefix."
+    },
+    "value": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/tekil"
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/tekil_dolu"
+          }
+        }
+      ]
+    },
+    "tekil": {
+      "type": [
+        "string",
+        "integer",
+        "boolean",
+        "null"
+      ]
+    },
+    "tekil_dolu": {
+      "type": [
+        "string",
+        "integer",
+        "boolean"
+      ],
+      "description": "Sigma: null cannot appear in a value list."
+    }
+  }
+}

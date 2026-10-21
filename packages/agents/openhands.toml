@@ -1,0 +1,26 @@
+# AI-agent process signature (koru-detect). Schema: schemas/agent-signature.v1.json.
+# Matching rests on the exe path and the command line; both are attacker-controlled (KT-02).
+# The signature feeds the actor-kind estimate; decoy access yields a finding regardless of the signature.
+schema = 1
+id = "openhands"
+name = "OpenHands"
+kind = "coding_assistant"
+references = [
+    "https://docs.openhands.dev/openhands/usage/cli/installation",
+    "https://github.com/OpenHands/OpenHands",
+]
+description = "An open-source AI software-development agent; the CLI is installed with uv tool install openhands and runs with the openhands command."
+validation_date = "2026-10-10"
+
+# A process started under the name openhands
+[[condition]]
+argv0_name = ["openhands"]
+
+# The openhands script running under Python
+[[condition]]
+exe_name = ["python", "python3", "python3.*", "pypy3"]
+script_name = ["openhands"]
+
+# python -m openhands
+[[condition]]
+python_module = ["openhands"]

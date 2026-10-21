@@ -1,0 +1,27 @@
+title: 'Attempt to stop the Koru service'
+id: 8c09d3b7-93f2-476e-af9e-0aa1413c5c3d
+name: koru_service_stop
+status: experimental
+description: 'Stopping, killing, disabling, masking, or restarting the Koru service with systemctl or service. The command produces a finding when seen before Koru stops; the stop itself is also recorded (koru_stopped).'
+references:
+    - 'https://attack.mitre.org/techniques/T1489/'
+    - 'https://attack.mitre.org/techniques/T1685/'
+author: 'Koru'
+date: 2026-10-10
+tags:
+    - attack.impact
+    - attack.defense-impairment
+    - attack.t1489
+    - attack.t1685
+logsource:
+    product: linux
+    category: process_creation
+detection:
+    stop:
+        koru.stop_attempt: 'service'
+    condition: stop
+falsepositives:
+    - 'The administrator restarting the service for maintenance.'
+level: high
+koru:
+    threat_class: self_protection

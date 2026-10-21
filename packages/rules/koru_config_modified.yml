@@ -1,0 +1,27 @@
+title: 'Modification of the Koru configuration'
+id: 0f8c63d8-ed2b-4acb-846a-8bd726d867b6
+name: koru_config_modified
+status: experimental
+description: 'Modification, deletion, or renaming of the Koru configuration file or the .env file where secrets are kept. A configuration change can disable decoys, rules, or notifications (KT-08).'
+references:
+    - 'https://attack.mitre.org/techniques/T1685/'
+author: 'Koru'
+date: 2026-10-10
+tags:
+    - attack.defense-impairment
+    - attack.t1685
+logsource:
+    product: linux
+    category: file_event
+detection:
+    protected:
+        koru.protected_kind:
+            - 'config'
+            - 'secret'
+        koru.modified: true
+    condition: protected
+falsepositives:
+    - 'Maintenance the administrator performs with Koru commands (koru decoy plant, koru decoy uninstall). These actions are recorded too, for non-repudiation (KT-18).'
+level: high
+koru:
+    threat_class: self_protection

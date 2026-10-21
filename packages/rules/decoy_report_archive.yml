@@ -1,0 +1,27 @@
+title: 'Read of a fake operations report archive'
+id: c7a6f1d2-3b4e-4f5a-9c8d-1e2f3a4b5c6d
+name: decoy_report_archive
+status: experimental
+description: 'Read of a report_archive class decoy added by data file only. If the process or one of its ancestors matches an AI agent signature, the finding is escalated to the "hijacked agent suspected" class.'
+references:
+    - 'https://attack.mitre.org/techniques/T1005/'
+author: 'Koru'
+date: 2026-10-17
+modified: 2026-10-17
+tags:
+    - attack.collection
+    - attack.t1005
+logsource:
+    product: linux
+    category: file_access
+detection:
+    decoy:
+        koru.decoy_class: 'report_archive'
+        koru.breadcrumb: false
+        koru.read: true
+    condition: decoy
+falsepositives:
+    - 'Broad backup or search jobs that also read decoys; they can be added to the allowlist only by exe path and inode.'
+level: medium
+koru:
+    threat_class: decoy_access

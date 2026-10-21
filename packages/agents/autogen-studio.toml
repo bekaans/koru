@@ -1,0 +1,26 @@
+# AI-agent process signature (koru-detect). Schema: schemas/agent-signature.v1.json.
+# Matching rests on the exe path and the command line; both are attacker-controlled (KT-02).
+# The signature feeds the actor-kind estimate; decoy access yields a finding regardless of the signature.
+schema = 1
+id = "autogen-studio"
+name = "AutoGen Studio"
+kind = "agent_framework"
+references = [
+    "https://github.com/microsoft/autogen",
+    "https://microsoft.github.io/autogen/stable/user-guide/autogenstudio-user-guide/index.html",
+]
+description = "The no-code UI of the Microsoft AutoGen framework (package and command: autogenstudio). Python processes that import the AutoGen library directly cannot be recognized from the command line (known limit)."
+validation_date = "2026-10-10"
+
+# A process started under the name autogenstudio
+[[condition]]
+argv0_name = ["autogenstudio"]
+
+# The autogenstudio script running under Python
+[[condition]]
+exe_name = ["python", "python3", "python3.*", "pypy3"]
+script_name = ["autogenstudio"]
+
+# python -m autogenstudio
+[[condition]]
+python_module = ["autogenstudio"]

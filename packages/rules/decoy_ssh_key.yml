@@ -1,0 +1,27 @@
+title: 'Read of a decoy SSH private key'
+id: f8030077-d823-4353-acf3-320a46a83d70
+name: decoy_ssh_key
+status: experimental
+description: 'Read of a fake SSH private key that is a Koru decoy. The key is not authorized on any server; a read shows that private keys are being sought. If the process or one of its ancestors matches an AI agent signature, the finding is escalated to the "hijacked agent suspected" class.'
+references:
+    - 'https://attack.mitre.org/techniques/T1552/004/'
+author: 'Koru'
+date: 2026-10-10
+modified: 2026-10-16
+tags:
+    - attack.credential-access
+    - attack.t1552.004
+logsource:
+    product: linux
+    category: file_access
+detection:
+    decoy:
+        koru.decoy_class: 'ssh_key'
+        koru.breadcrumb: false
+        koru.read: true
+    condition: decoy
+falsepositives:
+    - 'Broad backup or search jobs that also read decoys (e.g. grep -r); they can be added to the allowlist only by exe path and inode.'
+level: high
+koru:
+    threat_class: decoy_access

@@ -1,0 +1,32 @@
+title: 'Read of a breadcrumb with an unrecognized class'
+id: 60f06951-95e4-4185-a5d5-9a117170d1e8
+name: breadcrumb_general
+status: experimental
+description: 'Read of a breadcrumb class that was added by data file only and does not have its own rule yet.'
+references:
+    - 'https://attack.mitre.org/techniques/T1083/'
+author: 'Koru'
+date: 2026-10-10
+modified: 2026-10-15
+tags:
+    - attack.discovery
+    - attack.t1083
+logsource:
+    product: linux
+    category: file_access
+detection:
+    iz:
+        koru.decoy_id|exists: true
+        koru.breadcrumb: true
+        koru.read: true
+    bilinen_sinif:
+        koru.decoy_class:
+            - 'bash_history'
+            - 'ssh_config'
+            - 'known_hosts'
+    condition: iz and not bilinen_sinif
+falsepositives:
+    - 'The user''s own shell reads its history file; the ssh client reads its own configuration. A breadcrumb read is therefore low-priority and a separate signal; it is evaluated together with the process lineage and actor kind (KT-52).'
+level: low
+koru:
+    threat_class: breadcrumb_access

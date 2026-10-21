@@ -1,0 +1,28 @@
+title: 'Modification of the Koru binary'
+id: de5bd5b8-db06-4b63-8b6c-293e610711bb
+name: koru_binary_modified
+status: experimental
+description: 'The Koru executable being opened in write mode, deleted, or replaced with another file. A modified binary makes all detection untrustworthy and runs with root privileges (KT-10).'
+references:
+    - 'https://attack.mitre.org/techniques/T1685/'
+    - 'https://attack.mitre.org/techniques/T1554/'
+author: 'Koru'
+date: 2026-10-10
+tags:
+    - attack.defense-impairment
+    - attack.persistence
+    - attack.t1685
+    - attack.t1554
+logsource:
+    product: linux
+    category: file_event
+detection:
+    protected:
+        koru.protected_kind: 'binary'
+        koru.modified: true
+    condition: protected
+falsepositives:
+    - 'A version upgrade via the package manager; not expected outside the upgrade window.'
+level: critical
+koru:
+    threat_class: self_protection

@@ -1,0 +1,27 @@
+title: 'Attempt to terminate the Koru process'
+id: 8eac8b0a-ef15-4b85-9d4e-6a03654984b0
+name: koru_process_kill
+status: experimental
+description: 'The Koru process being targeted with kill, pkill, or killall. The shell builtin kill starts no separate process, so it is not seen; shutdown via SIGTERM is caught by koru_stopped, kill -9 by the external heartbeat stopping.'
+references:
+    - 'https://attack.mitre.org/techniques/T1489/'
+    - 'https://attack.mitre.org/techniques/T1685/'
+author: 'Koru'
+date: 2026-10-10
+tags:
+    - attack.impact
+    - attack.defense-impairment
+    - attack.t1489
+    - attack.t1685
+logsource:
+    product: linux
+    category: process_creation
+detection:
+    termination:
+        koru.stop_attempt: 'process'
+    condition: termination
+falsepositives:
+    - 'The administrator signaling the Koru process for maintenance.'
+level: high
+koru:
+    threat_class: self_protection

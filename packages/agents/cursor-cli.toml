@@ -1,0 +1,24 @@
+# AI-agent process signature (koru-detect). Schema: schemas/agent-signature.v1.json.
+# Matching rests on the exe path and the command line; both are attacker-controlled (KT-02).
+# The signature feeds the actor-kind estimate; decoy access yields a finding regardless of the signature.
+schema = 1
+id = "cursor-cli"
+name = "Cursor CLI"
+kind = "coding_assistant"
+references = [
+    "https://cursor.com/docs/cli/installation",
+]
+description = "Cursor's terminal agent. The install script installs under ~/.local/share/cursor-agent/versions/ and creates the ~/.local/bin/agent and ~/.local/bin/cursor-agent symlinks. The agent name is too generic to count as a signature on its own."
+validation_date = "2026-10-10"
+
+# The binary in the version directory
+[[condition]]
+exe_path_contains = ["/.local/share/cursor-agent/"]
+
+# The interpreter running the script in the version directory
+[[condition]]
+argument_contains = ["/.local/share/cursor-agent/"]
+
+# A process started under the name cursor-agent
+[[condition]]
+argv0_name = ["cursor-agent"]

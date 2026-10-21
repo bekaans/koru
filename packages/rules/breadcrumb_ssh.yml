@@ -1,0 +1,29 @@
+title: 'Read of breadcrumb SSH configuration'
+id: d25a2bcc-c3c0-4164-b20a-52e232047c98
+name: breadcrumb_ssh
+status: experimental
+description: 'Read of ~/.ssh/config or known_hosts with entries pointing at fake targets added. Attackers and AI agents read these files to discover remote systems.'
+references:
+    - 'https://attack.mitre.org/techniques/T1018/'
+author: 'Koru'
+date: 2026-10-10
+modified: 2026-10-15
+tags:
+    - attack.discovery
+    - attack.t1018
+logsource:
+    product: linux
+    category: file_access
+detection:
+    iz:
+        koru.decoy_class:
+            - 'ssh_config'
+            - 'known_hosts'
+        koru.breadcrumb: true
+        koru.read: true
+    condition: iz
+falsepositives:
+    - 'The user''s own shell reads its history file; the ssh client reads its own configuration. A breadcrumb read is therefore low-priority and a separate signal; it is evaluated together with the process lineage and actor kind (KT-52).'
+level: low
+koru:
+    threat_class: breadcrumb_access

@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://korusecurity.com/schemas/agent-signature.v1.json",
+  "title": "Koru AI-agent process signature, schema v1",
+  "description": "AI-agent process signature (ADR-0005). Signatures are packages/agents/*.toml files; the file name equals the id field. The TOML document corresponds to this schema's JSON data model. Rust counterpart: koru_detect::AgentSignature (deny_unknown_fields). A process matches the signature if it matches at least one condition block; every field inside a block must hold, one of a field's values suffices. The process and its ancestors in the lineage are checked separately. The exe path is lexically normalized before comparison. The following live on the Rust side, not in this schema: references being https, pattern validity, dates being valid calendar dates, and the id being unique in the package and equal to the file name.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "name",
+    "kind",
+    "references",
+    "description",
+    "validation_date",
+    "condition"
+  ],
+  "properties": {
+    "schema": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "kind": {
+      "enum": [
+        "coding_assistant",
+        "mcp_server",
+        "agent_framework"
+      ]
+    },
+    "references": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "type": "string",
+        "minLength": 9,
+        "maxLength": 512,
+        "pattern": "^https://"
+      },
+      "description": "Official source links (https)."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "validation_date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "The date the sources were last verified."
+    },
+    "condition": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "$ref": "#/$defs/condition"
+      }
+    }
+  },
+  "$defs": {
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "exe_name": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 256
+          },
+          "description": "The exe base name. A base-name pattern; * and ? wildcards may be used, and the pattern contains at least two literal characters."
+        },
+        "exe_path_contains": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 256
+          },
+          "description": "A substring of the normalized exe path (case sensitive)."
+        },
+        "argv0_name": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 256
+          },
+          "description": "The base name of argv[0]. A base-name pattern; * and ? wildcards may be used, and the pattern contains at least two literal characters."
+        },
+        "script_name": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 256
+          },
+          "description": "The base name of argv[1] (the script the interpreter runs). A base-name pattern; * and ? wildcards may be used, and the pattern contains at least two literal characters."
+        },
+        "argument_contains": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 256
+          },
+          "description": "A substring appearing in any argv item (at least 3 characters)."
+        },
+        "python_module": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 256
+          },
+          "description": "python -m <module>: the module name or a submodule. A base-name pattern; * and ? wildcards may be used, and the pattern contains at least two literal characters."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+title: 'Modification or deletion of a decoy file'
+id: da1187d3-aa69-4be7-af59-075073b11d53
+name: koru_decoy_modified
+status: experimental
+description: 'A decoy file being opened in write mode, deleted, renamed, or linked over. An attacker or hijacked agent that notices the decoy may modify it to make later accesses invisible (KT-06).'
+references:
+    - 'https://attack.mitre.org/techniques/T1685/'
+author: 'Koru'
+date: 2026-10-10
+tags:
+    - attack.defense-impairment
+    - attack.t1685
+logsource:
+    product: linux
+    category: file_event
+detection:
+    decoy:
+        koru.decoy_id|exists: true
+        koru.breadcrumb: false
+        koru.modified: true
+    condition: decoy
+falsepositives:
+    - 'Maintenance the administrator performs with Koru commands (koru decoy plant, koru decoy uninstall). These actions are recorded too, for non-repudiation (KT-18).'
+level: high
+koru:
+    threat_class: self_protection

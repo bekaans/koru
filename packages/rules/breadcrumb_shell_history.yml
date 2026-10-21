@@ -1,0 +1,27 @@
+title: 'Read of breadcrumb shell history'
+id: 983d4adc-7d89-4b38-aeda-8b591d5af9d8
+name: breadcrumb_shell_history
+status: experimental
+description: 'Read of a shell history file with lines pointing at fake targets added. Attackers and AI agents read shell history to look for credentials and targets.'
+references:
+    - 'https://attack.mitre.org/techniques/T1552/003/'
+author: 'Koru'
+date: 2026-10-10
+modified: 2026-10-15
+tags:
+    - attack.credential-access
+    - attack.t1552.003
+logsource:
+    product: linux
+    category: file_access
+detection:
+    iz:
+        koru.decoy_class: 'bash_history'
+        koru.breadcrumb: true
+        koru.read: true
+    condition: iz
+falsepositives:
+    - 'The user''s own shell reads its history file; the ssh client reads its own configuration. A breadcrumb read is therefore low-priority and a separate signal; it is evaluated together with the process lineage and actor kind (KT-52).'
+level: low
+koru:
+    threat_class: breadcrumb_access

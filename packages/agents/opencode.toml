@@ -1,0 +1,25 @@
+# AI-agent process signature (koru-detect). Schema: schemas/agent-signature.v1.json.
+# Matching rests on the exe path and the command line; both are attacker-controlled (KT-02).
+# The signature feeds the actor-kind estimate; decoy access yields a finding regardless of the signature.
+schema = 1
+id = "opencode"
+name = "opencode"
+kind = "coding_assistant"
+references = [
+    "https://github.com/anomalyco/opencode",
+    "https://opencode.ai/docs/",
+]
+description = "An open-source terminal coding agent; the binary is named opencode, the npm package is opencode-ai."
+validation_date = "2026-10-10"
+
+# The opencode binary
+[[condition]]
+exe_name = ["opencode"]
+
+# A process started under the name opencode
+[[condition]]
+argv0_name = ["opencode"]
+
+# The npm package's path
+[[condition]]
+argument_contains = ["opencode-ai"]

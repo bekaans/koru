@@ -1,0 +1,27 @@
+title: 'Koru stopped'
+id: 87c3b6c7-381a-4103-987c-0b018f563d5f
+name: koru_stopped
+status: experimental
+description: 'The event Koru itself emits while shutting down cleanly on SIGTERM, SIGINT, or SIGHUP. Whoever stopped it, the shutdown is recorded. A Koru stopped with kill -9 cannot emit this event; that case is caught by the external heartbeat.'
+references:
+    - 'https://attack.mitre.org/techniques/T1489/'
+    - 'https://attack.mitre.org/techniques/T1685/'
+author: 'Koru'
+date: 2026-10-10
+tags:
+    - attack.impact
+    - attack.defense-impairment
+    - attack.t1489
+    - attack.t1685
+logsource:
+    product: linux
+    service: koru
+detection:
+    stop:
+        koru.self_event: 'stopped'
+    condition: stop
+falsepositives:
+    - 'Planned maintenance, a version upgrade, or a server shutdown.'
+level: high
+koru:
+    threat_class: self_protection

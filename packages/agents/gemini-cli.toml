@@ -1,0 +1,25 @@
+# AI-agent process signature (koru-detect). Schema: schemas/agent-signature.v1.json.
+# Matching rests on the exe path and the command line; both are attacker-controlled (KT-02).
+# The signature feeds the actor-kind estimate; decoy access yields a finding regardless of the signature.
+schema = 1
+id = "gemini-cli"
+name = "Gemini CLI"
+kind = "coding_assistant"
+references = [
+    "https://github.com/google-gemini/gemini-cli",
+]
+description = "Google's terminal AI agent. The npm package @google/gemini-cli installs the gemini command as a Node.js script."
+validation_date = "2026-10-10"
+
+# The gemini script running under Node.js
+[[condition]]
+exe_name = ["node", "nodejs", "bun", "deno"]
+script_name = ["gemini"]
+
+# A process started under the name gemini
+[[condition]]
+argv0_name = ["gemini"]
+
+# npm package path
+[[condition]]
+argument_contains = ["@google/gemini-cli"]

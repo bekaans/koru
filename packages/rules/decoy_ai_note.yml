@@ -1,0 +1,30 @@
+title: 'Read of the decoy note that attracts AI agents'
+id: b6623a64-5e54-4eb5-a077-18071d18b5ef
+name: decoy_ai_note
+status: experimental
+description: 'Read of a fake administrator note written to attract AI agents. The note only points at other decoys; a read shows that access information is being sought on the server. If the process or one of its ancestors matches an AI agent signature, the finding is escalated to the "hijacked agent suspected" class.'
+references:
+    - 'https://attack.mitre.org/techniques/T1005/'
+    - 'https://attack.mitre.org/techniques/T1552/001/'
+author: 'Koru'
+date: 2026-10-10
+modified: 2026-10-16
+tags:
+    - attack.collection
+    - attack.credential-access
+    - attack.t1005
+    - attack.t1552.001
+logsource:
+    product: linux
+    category: file_access
+detection:
+    decoy:
+        koru.decoy_class: 'ai_note'
+        koru.breadcrumb: false
+        koru.read: true
+    condition: decoy
+falsepositives:
+    - 'Broad backup or search jobs that also read decoys (e.g. grep -r); they can be added to the allowlist only by exe path and inode.'
+level: high
+koru:
+    threat_class: decoy_access

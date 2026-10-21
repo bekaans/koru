@@ -1,0 +1,20 @@
+# AI-agent process signature (koru-detect). Schema: schemas/agent-signature.v1.json.
+# Matching rests on the exe path and the command line; both are attacker-controlled (KT-02).
+# The signature feeds the actor-kind estimate; decoy access yields a finding regardless of the signature.
+schema = 1
+id = "goose"
+name = "goose"
+kind = "coding_assistant"
+references = [
+    "https://github.com/aaif-goose/goose",
+]
+description = "The general-purpose AI agent at the Agentic AI Foundation; its CLI binary is named goose. The same-named database migration tool (pressly/goose) also matches this signature; the signature alone is not proof."
+validation_date = "2026-10-10"
+
+# goose binary
+[[condition]]
+exe_name = ["goose"]
+
+# A process started under the name goose
+[[condition]]
+argv0_name = ["goose"]

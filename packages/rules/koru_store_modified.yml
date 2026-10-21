@@ -1,0 +1,30 @@
+title: 'Modification of the Koru event store or state directory'
+id: 8267df2b-bb90-42b1-af41-6e12305d9d67
+name: koru_store_modified
+status: experimental
+description: 'Modification or deletion, by a process other than Koru, of a file in the Koru event store or state directory (integrity record and backups). An attacker tries this to erase traces or corrupt the integrity record (KT-07, KT-09).'
+references:
+    - 'https://attack.mitre.org/techniques/T1070/'
+    - 'https://attack.mitre.org/techniques/T1565/001/'
+author: 'Koru'
+date: 2026-10-10
+tags:
+    - attack.stealth
+    - attack.impact
+    - attack.t1070
+    - attack.t1565.001
+logsource:
+    product: linux
+    category: file_event
+detection:
+    protected:
+        koru.protected_kind:
+            - 'store'
+            - 'state'
+        koru.modified: true
+    condition: protected
+falsepositives:
+    - 'Maintenance the administrator performs with Koru commands (koru decoy plant, koru decoy uninstall). These actions are recorded too, for non-repudiation (KT-18).'
+level: high
+koru:
+    threat_class: self_protection

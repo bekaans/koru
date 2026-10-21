@@ -1,0 +1,37 @@
+title: 'Read of a decoy file with an unrecognized class'
+id: bfd57d07-695b-4072-96d4-69bc3b847cd8
+name: decoy_general
+status: experimental
+description: 'Read of a decoy class that was added by data file only and does not have its own rule yet. A new decoy template is covered even without writing a rule. If the process or one of its ancestors matches an AI agent signature, the finding is escalated to the "hijacked agent suspected" class.'
+references:
+    - 'https://attack.mitre.org/techniques/T1552/001/'
+author: 'Koru'
+date: 2026-10-10
+modified: 2026-10-16
+tags:
+    - attack.credential-access
+    - attack.t1552.001
+logsource:
+    product: linux
+    category: file_access
+detection:
+    decoy:
+        koru.decoy_id|exists: true
+        koru.breadcrumb: false
+        koru.read: true
+    bilinen_sinif:
+        koru.decoy_class:
+            - 'env'
+            - 'cloud_credentials'
+            - 'llm_keys'
+            - 'mcp_config'
+            - 'ssh_key'
+            - 'database_dump'
+            - 'ai_note'
+            - 'report_archive'
+    condition: decoy and not bilinen_sinif
+falsepositives:
+    - 'Broad backup or search jobs that also read decoys (e.g. grep -r); they can be added to the allowlist only by exe path and inode.'
+level: high
+koru:
+    threat_class: decoy_access
