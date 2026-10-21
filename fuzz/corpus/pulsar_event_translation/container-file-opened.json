@@ -1,0 +1,42 @@
+{
+  "header": {
+    "image": "/bin/cat",
+    "pid": 5495,
+    "parent_pid": 5493,
+    "uid": 0,
+    "gid": 0,
+    "container": {
+      "id": "ac723a96d4435aa4f5e400cafd7a9152b565e49c810a74f0b6485e2cef06506f",
+      "name": "silly_cartwright",
+      "image": "docker.io/library/alpine:3.22",
+      "image_digest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+      "layers": [
+        "/var/lib/containers/storage/overlay/9fd9b3248f2fb670edfab1393d1d1e8cd828eb9c65de376b2fcc23268a45d500/diff",
+        "/var/lib/containers/storage/overlay/9fd9b3248f2fb670edfab1393d1d1e8cd828eb9c65de376b2fcc23268a45d500/merged",
+        "/var/lib/containers/storage/overlay/9fd9b3248f2fb670edfab1393d1d1e8cd828eb9c65de376b2fcc23268a45d500/work",
+        "/var/lib/containers/storage/overlay/9fd9b3248f2fb670edfab1393d1d1e8cd828eb9c65de376b2fcc23268a45d500/empty",
+        "/var/lib/containers/storage/overlay/9fd9b3248f2fb670edfab1393d1d1e8cd828eb9c65de376b2fcc23268a45d500/diff",
+        "/var/lib/containers/storage/overlay/9fd9b3248f2fb670edfab1393d1d1e8cd828eb9c65de376b2fcc23268a45d500/merged",
+        "/var/lib/containers/storage/overlay/9fd9b3248f2fb670edfab1393d1d1e8cd828eb9c65de376b2fcc23268a45d500/work",
+        "/var/lib/containers/storage/overlay/9fd9b3248f2fb670edfab1393d1d1e8cd828eb9c65de376b2fcc23268a45d500/empty"
+      ]
+    },
+    "threat": null,
+    "source": "file-system-monitor",
+    "timestamp": {
+      "secs_since_epoch": 1791560875,
+      "nanos_since_epoch": 669444378
+    },
+    "fork_time": {
+      "secs_since_epoch": 1791560875,
+      "nanos_since_epoch": 648200856
+    }
+  },
+  "payload": {
+    "type": "FileOpened",
+    "content": {
+      "filename": "/tmp/koru-sample/konteyner.txt",
+      "flags": 131072
+    }
+  }
+}

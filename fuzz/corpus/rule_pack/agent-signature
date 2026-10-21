@@ -1,0 +1,25 @@
+# AI-agent process signature (koru-detect). Schema: schemas/agent-signature.v1.json.
+# Matching rests on the exe path and the command line; both are attacker-controlled (KT-02).
+# The signature feeds the actor-kind estimate; decoy access yields a finding regardless of the signature.
+schema = 1
+id = "claude-code"
+name = "Claude Code"
+kind = "coding_assistant"
+references = [
+    "https://code.claude.com/docs/en/setup",
+    "https://github.com/anthropics/claude-code",
+]
+description = "Anthropic's terminal coding assistant. In a local install, the ~/.local/bin/claude symlink points to the binary under ~/.local/share/claude/versions/; the npm package (@anthropic-ai/claude-code) installs the same binary."
+validation_date = "2026-10-10"
+
+# The binary in the local install's version directory
+[[condition]]
+exe_path_contains = ["/.local/share/claude/versions/"]
+
+# A process started as claude via PATH
+[[condition]]
+argv0_name = ["claude"]
+
+# npm paketinin yolu
+[[condition]]
+argument_contains = ["@anthropic-ai/claude-code"]

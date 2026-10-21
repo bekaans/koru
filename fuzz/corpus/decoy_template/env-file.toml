@@ -1,0 +1,83 @@
+# Decoy: production .env file (the classic).
+#
+# The payment service's environment variables: database, Redis, JWT, payment provider, and SMTP.
+# All addresses are in the RFC 5737 documentation networks; the database address matches the
+# fake database server in the `~/.ssh/config` breadcrumb.
+schema = 1
+id = "env-file"
+description = "Production .env file of the payment service: database, Redis, JWT, payment-provider, and SMTP secrets."
+kind = "decoy"
+class = "env"
+format = "env"
+secret = true
+content = """
+APP_ENV=production
+APP_DEBUG=false
+APP_KEY=base64:{{app_key}}
+DATABASE_URL=mysql://{{db_user}}:{{db_password}}@{{ssh-config:db_ip}}:3306/billing_prod
+REDIS_URL=redis://:{{redis_password}}@{{redis_ip}}:6379/0
+JWT_SECRET={{jwt_sirri}}
+STRIPE_SECRET_KEY=sk_live_{{payment_key}}
+STRIPE_WEBHOOK_SECRET=whsec_{{odeme_webhook}}
+SMTP_HOST={{smtp_ip}}
+SMTP_USER=billing-notify
+SMTP_PASSWORD={{smtp_password}}
+"""
+
+[target]
+path = "apps/{{proje}}/.env"
+mode = 0o600
+placement = "new_file"
+
+[timestamp]
+min_days = 14
+max_days = 300
+
+[values.proje]
+kind = "choice"
+options = ["billing-api", "payments-api", "invoice-service"]
+
+[values.app_key]
+kind = "random"
+alphabet = "base64"
+length = 44
+
+[values.db_user]
+kind = "choice"
+options = ["billing", "billing_app", "payments", "app_rw"]
+
+[values.db_password]
+kind = "random"
+alphabet = "base62"
+length = 24
+
+[values.redis_password]
+kind = "random"
+alphabet = "hex"
+length = 32
+
+[values.redis_ip]
+kind = "test_net_ipv4"
+
+[values.jwt_sirri]
+kind = "random"
+alphabet = "base64url"
+length = 64
+
+[values.payment_key]
+kind = "random"
+alphabet = "base62"
+length = 99
+
+[values.odeme_webhook]
+kind = "random"
+alphabet = "base62"
+length = 32
+
+[values.smtp_ip]
+kind = "test_net_ipv4"
+
+[values.smtp_password]
+kind = "random"
+alphabet = "base62"
+length = 20

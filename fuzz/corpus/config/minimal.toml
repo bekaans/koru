@@ -1,0 +1,5 @@
+schema_version = 1
+[agent]
+source_tag = "real"
+[decoy]
+root = "/root"

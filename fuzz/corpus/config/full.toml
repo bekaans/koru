@@ -1,0 +1,20 @@
+schema_version = 1
+
+[id]
+process_name = "backup-logger"
+service_name = "backup-service"
+
+[directories]
+install = "/usr/libexec/backup-service"
+config = "/etc/backup-service"
+state = "/srv/backup/state"
+runtime = "/run/backup-service"
+unit = "/etc/systemd/system"
+
+[agent]
+source_tag = "legitimate"
+host = "web01.sample.example"
+lineage_depth = 8
+
+[decoy]
+root = "/home/devops"

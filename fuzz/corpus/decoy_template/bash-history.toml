@@ -1,0 +1,32 @@
+# Breadcrumb: shell history (`~/.bash_history`).
+#
+# Appended to the end of the existing file; a backup is taken first, and on removal only
+# these lines are removed and the file returns byte-for-byte to its prior state. The lines
+# point at fake targets (the RFC 5737 documentation network) and other decoys. There is no destructive or data-exfiltrating command (rejected in validation).
+schema = 1
+id = "bash-history"
+description = "Shell-history breadcrumb: command lines leading to a fake bastion, database, and admin profile."
+kind = "breadcrumb"
+class = "bash_history"
+format = "bash_history"
+secret = true
+content = """
+ssh {{ssh-config:bastion}}
+ssh -i {{ssh-private-key:path}} {{ssh-config:user}}@{{ssh-config:bastion_ip}}
+aws --profile {{aws-credentials:profil}} sts get-caller-identity
+aws --profile {{aws-credentials:profil}} ec2 describe-instances --region eu-central-1 --output table
+mysql -h {{ssh-config:db_ip}} -u {{env-file:db_user}} -p{{env-file:db_password}} billing_prod
+ls -lh ~/backups/mysql/
+less {{database-dump:path}}
+cat {{env-file:path}}
+vim {{ai-note:path}}
+"""
+
+[target]
+path = ".bash_history"
+mode = 0o600
+placement = "append"
+
+[timestamp]
+min_days = 2
+max_days = 60

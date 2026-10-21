@@ -1,0 +1,5 @@
+version = 1
+[[input]]
+exe = "/usr/bin/backup"
+rules = ["decoy_general"]
+rationale = "nightly backup job"

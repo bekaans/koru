@@ -1,0 +1,8 @@
+schema_version = 1
+[id]
+service_name = "x\ny"
+[agent]
+source_tag = "real"
+[decoy]
+root = "/a b"
+bogus = 1

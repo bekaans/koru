@@ -1,0 +1,86 @@
+# Koru fuzz targets (cargo-fuzz; ADR-0008).
+#
+# A separate workspace: libfuzzer-sys (NCSA-licensed, fuzz tooling only) stays outside the
+# main workspace's cargo audit / cargo deny / dependency-check scope and never enters the
+# shipped binaries. It has its own Cargo.lock (`--locked`).
+#
+# Run (nightly required):
+#   cargo +nightly fuzz run <target> -- -max_total_time=600
+[package]
+name = "koru-fuzz"
+version = "0.0.0"
+edition = "2024"
+publish = false
+license = "Apache-2.0"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4.12"
+koru = { path = "../crates/koru" }
+koru-notify = { path = "../crates/koru-notify" }
+koru-store = { path = "../crates/koru-store" }
+koru-event = { path = "../crates/koru-event" }
+koru-detect = { path = "../crates/koru-detect" }
+koru-decoy = { path = "../crates/koru-decoy" }
+serde_json = "1"
+
+# Pulsar event translation exists only on Linux (ADR-0003 section 5).
+[target.'cfg(target_os = "linux")'.dependencies]
+koru-pulsar = { path = "../crates/koru-pulsar" }
+pulsar-core = { git = "https://github.com/exein-io/pulsar", rev = "0bb7bc20d454c35be4d662d6a3cd609e47f31c84" }
+
+[workspace]
+
+[profile.release]
+debug = 1
+
+[[bin]]
+name = "pulsar_event_translation"
+path = "fuzz_targets/pulsar_event_translation.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "config"
+path = "fuzz_targets/config.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "decoy_template"
+path = "fuzz_targets/decoy_template.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "rule_pack"
+path = "fuzz_targets/rule_pack.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "cli_input"
+path = "fuzz_targets/cli_input.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "jsonl_import"
+path = "fuzz_targets/jsonl_import.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "persistent_queue"
+path = "fuzz_targets/persistent_queue.rs"
+test = false
+doc = false
+bench = false
