@@ -1,0 +1,37 @@
+Koru
+Copyright 2026 Koru contributors.
+
+Koru is licensed under the Apache License 2.0 (Apache-2.0):
+https://www.apache.org/licenses/LICENSE-2.0
+
+This file is the license information for third-party components distributed with Koru. It is not
+legal advice.
+
+-------------------------------------------------------------------------------------------------
+Pulsar (Exein SpA)
+-------------------------------------------------------------------------------------------------
+Source: https://github.com/exein-io/pulsar
+Version used: main branch, commit 0bb7bc20d454c35be4d662d6a3cd609e47f31c84 (0.11.0-alpha.1;
+ADR-0003). "Copyright 2022 Exein, SpA".
+
+- Pulsar's userspace code is Apache-2.0 licensed (LICENSES/LICENSE-APACHE-2.0 in the Pulsar repo).
+- Pulsar's eBPF probes are GPL-2.0 licensed (LICENSES/LICENSE-GPL-2.0 in the Pulsar repo; some probe
+  files are "GPL-2.0 OR BSD-3-Clause"). Koru's Linux agent contains, embedded in its binary, eBPF
+  bytecode compiled with clang at build time in the Pulsar crates below. This bytecode is GPL-2.0;
+  its source code is at the commit above:
+    * process-monitor        crates/modules/process-monitor/probes.bpf.c
+    * network-monitor        crates/modules/network-monitor/probes.bpf.c
+    * file-system-monitor    crates/modules/file-system-monitor/probes.bpf.c
+    * bpf-feature-autodetect crates/bpf-feature-autodetect/src/*.bpf.c
+    * bpf-filtering          crates/bpf-filtering/src/filtering_example.bpf.c
+    * bpf-builder            crates/bpf-builder/include/*.bpf.h (build-time headers)
+  The libbpf headers compiled into the eBPF probes are licensed LGPL-2.1 OR BSD-2-Clause.
+- Koru's own code (Rust) contains no eBPF probe source and is Apache-2.0.
+
+-------------------------------------------------------------------------------------------------
+Other Rust dependencies
+-------------------------------------------------------------------------------------------------
+The full list of dependencies is in Cargo.lock. Their licenses are checked with
+`cargo deny check licenses` (deny.toml): Apache-2.0, MIT, BSD-2-Clause, BSD-3-Clause, Unicode-3.0, Zlib.
+The only exception is tiny-keccak (CC0-1.0): it runs only at build time inside a proc-macro
+(const-random-macro) and does not enter the distributed binary (ADR-0003).
