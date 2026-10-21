@@ -1,0 +1,23 @@
+[package]
+name = "koru-detect"
+description = "The Koru detection layer: Sigma-compatible rule packs, AI-agent awareness, actor-kind estimation, an allowlist, self-protection, and ATT&CK mapping"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+koru-event = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+toml = { workspace = true }
+yaml-rust2 = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+
+[lints]
+workspace = true

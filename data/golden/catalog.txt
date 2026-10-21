@@ -1,0 +1,14 @@
+01a14922-c3ee-7336-92f8-f8b8fee8e936  decoy         cloud_credentials        new file /home/devops/.aws/credentials
+01a14922-c3ee-7336-92f8-f8baab2bf902  breadcrumb  bash_history         append     /home/devops/.bash_history
+01a14922-c3ee-7336-92f8-f8bb857809dc  decoy         env                  new file /home/devops/apps/invoice-service/.env
+01a14922-c3ee-7336-92f8-f8bd1e34caea  breadcrumb  known_hosts          append     /home/devops/.ssh/known_hosts
+01a14922-c3ee-7336-92f8-f8bec397f367  decoy         llm_keys         new file /home/devops/apps/ai-helpdesk/.env
+01a14922-c3ee-7336-92f8-f8bfcd9f4874  decoy         mcp_config   new file /home/devops/.config/Claude/claude_desktop_config.json
+01a14922-c3ee-7336-92f8-f8c01527a202  decoy         mcp_config   new file /home/devops/.cursor/mcp.json
+01a14922-c3ee-7336-92f8-f8c199e2d26b  decoy         mcp_config   new file /home/devops/apps/ai-helpdesk/.mcp.json
+01a14922-c3ee-7336-92f8-f8c285b99628  decoy         report_archive         new file /home/devops/.local/share/reports/private.txt
+01a14922-c3ee-7336-92f8-f8c34810e143  decoy         ssh_key         new file /home/devops/.ssh/id_ed25519_deploy
+01a14922-c3ee-7336-92f8-f8c5953fb468  breadcrumb  ssh_config   append     /home/devops/.ssh/config
+01a14922-c3ee-7336-92f8-f8c6d5bf5fe3  decoy         database_dump    new file /home/devops/backups/mysql/billing_prod_2026-08-31.sql
+01a14922-c3ee-7336-92f8-f8c7e769871b  decoy         ai_note              new file /home/devops/notes/prod-access.md
+Total: 13 entries
